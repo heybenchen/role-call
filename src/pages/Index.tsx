@@ -70,6 +70,7 @@ const Index = () => {
   const isHost = currentPlayer?.isHost ?? false;
   const isJoiningGame = location.pathname.includes('/join/');
   const promptPlayer = state.players.find(p => p.id === state.promptPlayerId);
+  const isPlayerTurn = playerId === state.promptPlayerId;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -110,6 +111,7 @@ const Index = () => {
           currentPlayer={promptPlayer}
           onPromptSubmit={handlePromptSubmit}
           playerCount={state.players.length}
+          isPlayerTurn={isPlayerTurn}
         />
       )}
 

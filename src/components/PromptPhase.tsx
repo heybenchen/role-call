@@ -11,15 +11,18 @@ interface PromptPhaseProps {
   currentPlayer: Player;
   onPromptSubmit: (prompt: string, options: string[]) => void;
   playerCount: number;
+  isPlayerTurn: boolean;
 }
 
-export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount }: PromptPhaseProps) => {
+export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlayerTurn }: PromptPhaseProps) => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPlayerTurn) return;
+    
     setIsLoading(true);
 
     try {
@@ -49,27 +52,35 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount }: Prom
           <h2 className="text-2xl font-bold text-game-neutral">
             {currentPlayer.name}'s Turn
           </h2>
-          <p className="text-gray-600">
-            Enter a category (e.g., "natural elements" or "Scooby Doo characters")
-          </p>
+          {isPlayerTurn ? (
+            <p className="text-gray-600">
+              Enter a category (e.g., "natural elements" or "Scooby Doo characters")
+            </p>
+          ) : (
+            <p className="text-gray-600">
+              Waiting for {currentPlayer.name} to enter a category...
+            </p>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="text"
-            placeholder="Enter your category..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            disabled={isLoading}
-          />
-          <Button
-            type="submit"
-            className="w-full bg-game-primary hover:bg-game-primary/90 text-white"
-            disabled={!prompt.trim() || isLoading}
-          >
-            {isLoading ? 'Generating options...' : 'Submit Category'}
-          </Button>
-        </form>
+        {isPlayerTurn && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              type="text"
+              placeholder="Enter your category..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              disabled={isLoading}
+            />
+            <Button
+              type="submit"
+              className="w-full bg-game-primary hover:bg-game-primary/90 text-white"
+              disabled={!prompt.trim() || isLoading}
+            >
+              {isLoading ? 'Generating options...' : 'Submit Category'}
+            </Button>
+          </form>
+        )}
       </Card>
     </div>
   );
