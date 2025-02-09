@@ -123,6 +123,7 @@ const Index = () => {
           currentPlayer={currentPlayer!}
           timeRemaining={state.timeRemaining}
           onSubmit={handleMatchSubmit}
+          submissions={state.submissions}
         />
       )}
 

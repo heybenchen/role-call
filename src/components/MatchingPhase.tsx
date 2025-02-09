@@ -12,6 +12,7 @@ interface MatchingPhaseProps {
   currentPlayer: Player;
   timeRemaining: number;
   onSubmit: (matches: Record<string, string>) => void;
+  submissions: Record<string, Record<string, string>>;
 }
 
 export const MatchingPhase = ({
@@ -21,19 +22,16 @@ export const MatchingPhase = ({
   currentPlayer,
   timeRemaining,
   onSubmit,
+  submissions,
 }: MatchingPhaseProps) => {
   const [matches, setMatches] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [draggablePlayers, setDraggablePlayers] = useState<Player[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState(timeRemaining);
 
-  useEffect(() => {
-    // Initialize draggable players, including all players (even current player)
-    setDraggablePlayers(players);
-  }, [players]);
+  const hasSubmitted = submissions[currentPlayer.id] !== undefined;
 
   useEffect(() => {
-    if (timer === 0 && !submitted) {
+    if (timer === 0 && !hasSubmitted) {
       handleSubmit();
       return;
     }
@@ -43,26 +41,22 @@ export const MatchingPhase = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timer, submitted]);
+  }, [timer, hasSubmitted]);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
     const { draggableId, destination } = result;
     
-    // Check if the player is already assigned to another option
     const alreadyAssignedOption = Object.entries(matches).find(([_, playerId]) => playerId === draggableId);
     if (alreadyAssignedOption) {
-      // Remove the player from the previous option
       const [previousOption] = alreadyAssignedOption;
       const updatedMatches = { ...matches };
       delete updatedMatches[previousOption];
       
-      // Assign to new option
       updatedMatches[destination.droppableId] = draggableId;
       setMatches(updatedMatches);
     } else {
-      // Assign to new option
       setMatches(prev => ({
         ...prev,
         [destination.droppableId]: draggableId,
@@ -71,9 +65,10 @@ export const MatchingPhase = ({
   };
 
   const handleSubmit = () => {
-    if (!submitted) {
-      setSubmitted(true);
+    if (!hasSubmitted) {
+      setIsLoading(true);
       onSubmit(matches);
+      setIsLoading(false);
     }
   };
 
@@ -83,7 +78,10 @@ export const MatchingPhase = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!draggablePlayers.length || !options.length) {
+  const otherPlayers = players.filter(p => p.id !== currentPlayer.id);
+  const promptPlayer = players.find(p => p.id === players[0]?.id);
+
+  if (!otherPlayers.length || !options.length || !promptPlayer) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="p-6">
@@ -93,78 +91,91 @@ export const MatchingPhase = ({
     );
   }
 
+  const submittedPlayersCount = Object.keys(submissions).length;
+  const remainingPlayers = players.length - 1 - submittedPlayersCount;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-4xl p-6 space-y-6">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold text-game-neutral">Match Players to {currentPrompt}</h2>
           <p className="text-xl font-semibold text-game-primary">{formatTime(timer)}</p>
+          {hasSubmitted && (
+            <p className="text-gray-600">
+              Waiting for {remainingPlayers} {remainingPlayers === 1 ? 'player' : 'players'} to submit...
+            </p>
+          )}
         </div>
 
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Players</h3>
-              <Droppable droppableId="players-list">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="space-y-2"
-                  >
-                    {draggablePlayers.map((player, index) => (
-                      <Draggable key={player.id} draggableId={player.id} index={index}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="p-3 bg-white rounded-lg shadow-sm border border-gray-200 cursor-move"
-                          >
-                            {player.name}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Categories</h3>
-              {options.map((option) => (
-                <Droppable key={option} droppableId={option}>
+        {!hasSubmitted && (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Players</h3>
+                <Droppable droppableId="players-list">
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 min-h-[60px]"
+                      className="space-y-2"
                     >
-                      <div className="font-medium mb-2">{option}</div>
-                      {matches[option] && (
-                        <div className="p-2 bg-white rounded shadow">
-                          {players.find(p => p.id === matches[option])?.name}
-                        </div>
-                      )}
+                      {otherPlayers.map((player, index) => (
+                        <Draggable key={player.id} draggableId={player.id} index={index}>
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="p-3 bg-white rounded-lg shadow-sm border border-gray-200 cursor-move"
+                            >
+                              {player.name}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
                       {provided.placeholder}
                     </div>
                   )}
                 </Droppable>
-              ))}
-            </div>
-          </div>
-        </DragDropContext>
+              </div>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={submitted}
-          className="w-full bg-game-primary hover:bg-game-primary/90 text-white mt-4"
-        >
-          {submitted ? 'Waiting for others...' : 'Submit Matches'}
-        </Button>
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Categories</h3>
+                {options.map((option) => (
+                  <Droppable key={option} droppableId={option}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 min-h-[60px]"
+                      >
+                        <div className="font-medium mb-2">{option}</div>
+                        {matches[option] && (
+                          <div className="p-2 bg-white rounded shadow">
+                            {otherPlayers.find(p => p.id === matches[option])?.name}
+                          </div>
+                        )}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                ))}
+              </div>
+            </div>
+          </DragDropContext>
+        )}
+
+        {!hasSubmitted && (
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="w-full bg-game-primary hover:bg-game-primary/90 text-white mt-4"
+          >
+            {isLoading ? 'Submitting...' : 'Submit Matches'}
+          </Button>
+        )}
       </Card>
     </div>
   );
 };
+
