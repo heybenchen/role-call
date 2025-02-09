@@ -1,31 +1,34 @@
-import { useReducer, useCallback, useEffect } from 'react';
-import { GameState, GameAction, Player } from '@/types/game';
-import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useReducer, useCallback, useEffect } from "react";
+import { GameState, GameAction, Player } from "@/types/game";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const generateLobbyCode = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  return Array.from({ length: 4 }, () => 
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return Array.from({ length: 4 }, () =>
     characters.charAt(Math.floor(Math.random() * characters.length))
-  ).join('');
+  ).join("");
 };
 
 const initialState: GameState = {
-  lobbyCode: '',
+  lobbyCode: "",
   players: [],
   currentRound: 0,
   totalRounds: 0,
   submissions: {},
   timeRemaining: 90,
-  phase: 'lobby',
+  phase: "lobby",
 };
 
-const calculateResults = (submissions: Record<string, Record<string, string>>, players: Player[]): Record<string, string> => {
+const calculateResults = (
+  submissions: Record<string, Record<string, string>>,
+  players: Player[]
+): Record<string, string> => {
   const results: Record<string, string> = {};
   const optionCounts: Record<string, Record<string, number>> = {};
   const assignedPlayers = new Set<string>();
 
-  Object.values(submissions).forEach(playerSubmission => {
+  Object.values(submissions).forEach((playerSubmission) => {
     Object.entries(playerSubmission).forEach(([option, playerId]) => {
       if (!optionCounts[option]) {
         optionCounts[option] = {};
@@ -55,7 +58,7 @@ const updateScores = (
   submissions: Record<string, Record<string, string>>,
   results: Record<string, string>
 ): Player[] => {
-  return players.map(player => {
+  return players.map((player) => {
     const submission = submissions[player.id];
     if (!submission) return player;
 
@@ -72,8 +75,8 @@ const updateScores = (
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
-    case 'JOIN_GAME':
-      if (state.players.find(p => p.id === action.player.id)) {
+    case "JOIN_GAME":
+      if (state.players.find((p) => p.id === action.player.id)) {
         return state;
       }
       return {
@@ -81,26 +84,26 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         players: [...state.players, action.player],
         totalRounds: state.players.length * 2,
       };
-    case 'START_GAME':
+    case "START_GAME":
       return {
         ...state,
-        phase: 'prompt',
+        phase: "prompt",
         promptPlayerId: state.players[0].id,
       };
-    case 'SET_PROMPT':
+    case "SET_PROMPT":
       return {
         ...state,
         currentPrompt: action.prompt,
-        phase: 'matching',
+        phase: "matching",
         timeRemaining: 90,
       };
-    case 'SET_OPTIONS':
+    case "SET_OPTIONS":
       return {
         ...state,
         options: action.options,
       };
-    case 'SUBMIT_MATCHES':
-      const allPlayersSubmitted = 
+    case "SUBMIT_MATCHES": {
+      const allPlayersSubmitted =
         Object.keys(state.submissions).length + 1 >= state.players.length - 1;
 
       if (allPlayersSubmitted) {
@@ -116,7 +119,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           submissions: newSubmissions,
           results,
           players: updatedPlayers,
-          phase: 'results',
+          phase: "results",
         };
       }
 
@@ -127,47 +130,49 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           [action.playerId]: action.matches,
         },
       };
-    case 'SET_RESULTS':
+    }
+    case "SET_RESULTS":
       return {
         ...state,
         results: action.results,
-        phase: 'results',
+        phase: "results",
       };
-    case 'NEXT_ROUND':
+    case "NEXT_ROUND": {
       const nextPlayerIndex = (state.currentRound + 1) % state.players.length;
       return {
         ...state,
         currentRound: state.currentRound + 1,
-        phase: state.currentRound + 1 >= state.totalRounds ? 'gameOver' : 'prompt',
+        phase: state.currentRound + 1 >= state.totalRounds ? "gameOver" : "prompt",
         promptPlayerId: state.players[nextPlayerIndex]?.id,
         submissions: {},
         results: undefined,
         currentPrompt: undefined,
         options: undefined,
       };
-    case 'UPDATE_TIME':
+    }
+    case "UPDATE_TIME":
       if (action.time === 0) {
         return {
           ...state,
           timeRemaining: action.time,
-          phase: 'results',
+          phase: "results",
         };
       }
       return {
         ...state,
         timeRemaining: action.time,
       };
-    case 'END_GAME':
+    case "END_GAME":
       return {
         ...state,
-        phase: 'gameOver',
+        phase: "gameOver",
       };
-    case 'SET_LOBBY_CODE':
+    case "SET_LOBBY_CODE":
       return {
         ...state,
         lobbyCode: action.lobbyCode,
       };
-    case 'UPDATE_GAME_STATE':
+    case "UPDATE_GAME_STATE":
       return {
         ...state,
         ...action.state,
@@ -180,76 +185,77 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 export const useGame = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  const joinGame = useCallback(async (player: Player) => {
-    try {
-      const { data: playerData, error: playerError } = await supabase
-        .from('players')
-        .upsert({ 
-          id: player.id,
-          name: player.name,
-        })
-        .select()
-        .single();
+  const joinGame = useCallback(
+    async (player: Player) => {
+      try {
+        const { data: playerData, error: playerError } = await supabase
+          .from("players")
+          .upsert({
+            id: player.id,
+            name: player.name,
+          })
+          .select()
+          .single();
 
-      if (playerError) throw playerError;
+        if (playerError) throw playerError;
 
-      const completePlayer: Player = {
-        id: playerData.id,
-        name: playerData.name,
-        score: player.score,
-        isHost: player.isHost,
-      };
+        const completePlayer: Player = {
+          id: playerData.id,
+          name: playerData.name,
+          score: player.score,
+          isHost: player.isHost,
+        };
 
-      const { data: lobbyData, error: lobbyError } = await supabase
-        .from('lobbies')
-        .upsert({
-          code: state.lobbyCode,
-          state: {
-            ...state,
-            players: [...state.players, completePlayer],
-            totalRounds: state.players.length * 2,
-          },
-        })
-        .select()
-        .single();
+        const { data: lobbyData, error: lobbyError } = await supabase
+          .from("lobbies")
+          .upsert({
+            code: state.lobbyCode,
+            state: {
+              ...state,
+              players: [...state.players, completePlayer],
+              totalRounds: state.players.length * 2,
+            },
+          })
+          .select()
+          .single();
 
-      if (lobbyError) throw lobbyError;
+        if (lobbyError) throw lobbyError;
 
-      dispatch({ type: 'JOIN_GAME', player: completePlayer });
-      toast({
-        title: 'Player joined!',
-        description: `${player.name} has joined the game`,
-      });
-    } catch (error) {
-      console.error('Error joining game:', error);
-      toast({
-        title: 'Error joining game',
-        description: 'Please try again later',
-        variant: 'destructive',
-      });
-    }
-  }, [state]);
+        dispatch({ type: "JOIN_GAME", player: completePlayer });
+        toast({
+          title: "Player joined!",
+          description: `${player.name} has joined the game`,
+        });
+      } catch (error) {
+        console.error("Error joining game:", error);
+        toast({
+          title: "Error joining game",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      }
+    },
+    [state]
+  );
 
   const createLobby = useCallback(async () => {
     try {
       const newLobbyCode = generateLobbyCode();
-      const { error } = await supabase
-        .from('lobbies')
-        .insert({
-          code: newLobbyCode,
-          state: initialState,
-        });
+      const { error } = await supabase.from("lobbies").insert({
+        code: newLobbyCode,
+        state: initialState,
+      });
 
       if (error) throw error;
 
-      dispatch({ type: 'SET_LOBBY_CODE', lobbyCode: newLobbyCode });
+      dispatch({ type: "SET_LOBBY_CODE", lobbyCode: newLobbyCode });
       return newLobbyCode;
     } catch (error) {
-      console.error('Error creating lobby:', error);
+      console.error("Error creating lobby:", error);
       toast({
-        title: 'Error creating lobby',
-        description: 'Please try again later',
-        variant: 'destructive',
+        title: "Error creating lobby",
+        description: "Please try again later",
+        variant: "destructive",
       });
       return null;
     }
@@ -258,104 +264,116 @@ export const useGame = () => {
   const fetchLobby = useCallback(async (lobbyCode: string) => {
     try {
       const { data, error } = await supabase
-        .from('lobbies')
-        .select('*')
-        .eq('code', lobbyCode)
+        .from("lobbies")
+        .select("*")
+        .eq("code", lobbyCode)
         .maybeSingle();
 
       if (error) throw error;
 
       if (!data) {
         toast({
-          title: 'Lobby not found',
-          description: 'The lobby code you entered does not exist',
-          variant: 'destructive',
+          title: "Lobby not found",
+          description: "The lobby code you entered does not exist",
+          variant: "destructive",
         });
         return;
       }
 
-      dispatch({ type: 'SET_LOBBY_CODE', lobbyCode: data.code });
+      dispatch({ type: "SET_LOBBY_CODE", lobbyCode: data.code });
       Object.entries(data.state).forEach(([key, value]) => {
-        if (key === 'players') {
+        if (key === "players") {
           value.forEach((player: Player) => {
-            dispatch({ type: 'JOIN_GAME', player });
+            dispatch({ type: "JOIN_GAME", player });
           });
         }
       });
     } catch (error) {
-      console.error('Error fetching lobby:', error);
+      console.error("Error fetching lobby:", error);
       toast({
-        title: 'Error fetching lobby',
-        description: 'Please try again later',
-        variant: 'destructive',
+        title: "Error fetching lobby",
+        description: "Please try again later",
+        variant: "destructive",
       });
     }
   }, []);
 
-  const updateLobbyState = useCallback(async (newState: Partial<GameState>) => {
-    try {
-      const { error } = await supabase
-        .from('lobbies')
-        .update({
-          state: {
-            ...state,
-            ...newState,
-          },
-        })
-        .eq('code', state.lobbyCode);
+  const updateLobbyState = useCallback(
+    async (newState: Partial<GameState>) => {
+      try {
+        const { error } = await supabase
+          .from("lobbies")
+          .update({
+            state: {
+              ...state,
+              ...newState,
+            },
+          })
+          .eq("code", state.lobbyCode);
 
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating lobby state:', error);
-      toast({
-        title: 'Error updating game state',
-        description: 'Please try again later',
-        variant: 'destructive',
-      });
-    }
-  }, [state]);
+        if (error) throw error;
+      } catch (error) {
+        console.error("Error updating lobby state:", error);
+        toast({
+          title: "Error updating game state",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      }
+    },
+    [state]
+  );
 
   const startGame = useCallback(async () => {
-    dispatch({ type: 'START_GAME' });
-    await updateLobbyState({ phase: 'prompt', promptPlayerId: state.players[0].id });
+    dispatch({ type: "START_GAME" });
+    await updateLobbyState({ phase: "prompt", promptPlayerId: state.players[0].id });
   }, [state.players, updateLobbyState]);
 
-  const setPrompt = useCallback(async (prompt: string) => {
-    dispatch({ type: 'SET_PROMPT', prompt });
-    await updateLobbyState({ currentPrompt: prompt });
-  }, [updateLobbyState]);
+  const setPrompt = useCallback(
+    async (prompt: string) => {
+      dispatch({ type: "SET_PROMPT", prompt });
+      await updateLobbyState({ currentPrompt: prompt });
+    },
+    [updateLobbyState]
+  );
 
-  const setOptions = useCallback(async (options: string[]) => {
-    dispatch({ type: 'SET_OPTIONS', options });
-    await updateLobbyState({ options });
-  }, [updateLobbyState]);
+  const setOptions = useCallback(
+    async (options: string[]) => {
+      dispatch({ type: "SET_OPTIONS", options });
+      await updateLobbyState({ options });
+    },
+    [updateLobbyState]
+  );
 
-  const submitMatches = useCallback(async (playerId: string, matches: Record<string, string>) => {
-    dispatch({ type: 'SUBMIT_MATCHES', playerId, matches });
-    const updatedSubmissions = {
-      ...state.submissions,
-      [playerId]: matches,
-    };
-    await updateLobbyState({ submissions: updatedSubmissions });
-  }, [state.submissions, updateLobbyState]);
+  const submitMatches = useCallback(
+    async (playerId: string, matches: Record<string, string>) => {
+      dispatch({ type: "SUBMIT_MATCHES", playerId, matches });
+      const updatedSubmissions = {
+        ...state.submissions,
+        [playerId]: matches,
+      };
+      await updateLobbyState({ submissions: updatedSubmissions });
+    },
+    [state.submissions, updateLobbyState]
+  );
 
   useEffect(() => {
     if (!state.lobbyCode) return;
 
     const channel = supabase
-      .channel('lobby_updates')
+      .channel("lobby_updates")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'lobbies',
+          event: "*",
+          schema: "public",
+          table: "lobbies",
           filter: `code=eq.${state.lobbyCode}`,
         },
         (payload) => {
           if (payload.new) {
             const newState = (payload.new as any).state;
-            dispatch({ type: 'UPDATE_GAME_STATE', state: newState });
+            dispatch({ type: "UPDATE_GAME_STATE", state: newState });
           }
         }
       )
@@ -367,19 +385,19 @@ export const useGame = () => {
   }, [state.lobbyCode]);
 
   const nextRound = useCallback(() => {
-    dispatch({ type: 'NEXT_ROUND' });
+    dispatch({ type: "NEXT_ROUND" });
   }, []);
 
   const updateTime = useCallback((time: number) => {
-    dispatch({ type: 'UPDATE_TIME', time });
+    dispatch({ type: "UPDATE_TIME", time });
   }, []);
 
   const endGame = useCallback(() => {
-    dispatch({ type: 'END_GAME' });
+    dispatch({ type: "END_GAME" });
   }, []);
 
   const setLobbyCode = useCallback((lobbyCode: string) => {
-    dispatch({ type: 'SET_LOBBY_CODE', lobbyCode });
+    dispatch({ type: "SET_LOBBY_CODE", lobbyCode });
   }, []);
 
   return {
