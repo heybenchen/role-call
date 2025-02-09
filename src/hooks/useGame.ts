@@ -287,6 +287,53 @@ export const useGame = () => {
     }
   }, []);
 
+  const updateLobbyState = useCallback(async (newState: Partial<GameState>) => {
+    try {
+      const { error } = await supabase
+        .from('lobbies')
+        .update({
+          state: {
+            ...state,
+            ...newState,
+          },
+        })
+        .eq('code', state.lobbyCode);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating lobby state:', error);
+      toast({
+        title: 'Error updating game state',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    }
+  }, [state]);
+
+  const startGame = useCallback(async () => {
+    dispatch({ type: 'START_GAME' });
+    await updateLobbyState({ phase: 'prompt', promptPlayerId: state.players[0].id });
+  }, [state.players, updateLobbyState]);
+
+  const setPrompt = useCallback(async (prompt: string) => {
+    dispatch({ type: 'SET_PROMPT', prompt });
+    await updateLobbyState({ currentPrompt: prompt });
+  }, [updateLobbyState]);
+
+  const setOptions = useCallback(async (options: string[]) => {
+    dispatch({ type: 'SET_OPTIONS', options });
+    await updateLobbyState({ options });
+  }, [updateLobbyState]);
+
+  const submitMatches = useCallback(async (playerId: string, matches: Record<string, string>) => {
+    dispatch({ type: 'SUBMIT_MATCHES', playerId, matches });
+    const updatedSubmissions = {
+      ...state.submissions,
+      [playerId]: matches,
+    };
+    await updateLobbyState({ submissions: updatedSubmissions });
+  }, [state.submissions, updateLobbyState]);
+
   useEffect(() => {
     if (!state.lobbyCode) return;
 
@@ -303,10 +350,25 @@ export const useGame = () => {
         (payload) => {
           if (payload.new) {
             const newState = (payload.new as any).state;
-            if (newState.players) {
-              newState.players.forEach((player: Player) => {
-                if (!state.players.find(p => p.id === player.id)) {
-                  dispatch({ type: 'JOIN_GAME', player });
+            
+            // Update game phase
+            if (newState.phase !== state.phase) {
+              dispatch({ type: newState.phase === 'prompt' ? 'START_GAME' : 'SET_PHASE', phase: newState.phase });
+            }
+
+            // Update prompt and options
+            if (newState.currentPrompt && newState.currentPrompt !== state.currentPrompt) {
+              dispatch({ type: 'SET_PROMPT', prompt: newState.currentPrompt });
+            }
+            if (newState.options && JSON.stringify(newState.options) !== JSON.stringify(state.options)) {
+              dispatch({ type: 'SET_OPTIONS', options: newState.options });
+            }
+
+            // Update submissions and results
+            if (newState.submissions && JSON.stringify(newState.submissions) !== JSON.stringify(state.submissions)) {
+              Object.entries(newState.submissions).forEach(([playerId, matches]) => {
+                if (!state.submissions[playerId]) {
+                  dispatch({ type: 'SUBMIT_MATCHES', playerId, matches: matches as Record<string, string> });
                 }
               });
             }
@@ -318,27 +380,7 @@ export const useGame = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [state.lobbyCode, state.players]);
-
-  const startGame = useCallback(() => {
-    dispatch({ type: 'START_GAME' });
-  }, []);
-
-  const setPrompt = useCallback((prompt: string) => {
-    dispatch({ type: 'SET_PROMPT', prompt });
-  }, []);
-
-  const setOptions = useCallback((options: string[]) => {
-    dispatch({ type: 'SET_OPTIONS', options });
-  }, []);
-
-  const submitMatches = useCallback((playerId: string, matches: Record<string, string>) => {
-    dispatch({ type: 'SUBMIT_MATCHES', playerId, matches });
-  }, []);
-
-  const setResults = useCallback((results: Record<string, string>) => {
-    dispatch({ type: 'SET_RESULTS', results });
-  }, []);
+  }, [state.lobbyCode, state.phase, state.currentPrompt, state.options, state.submissions]);
 
   const nextRound = useCallback(() => {
     dispatch({ type: 'NEXT_ROUND' });
@@ -366,7 +408,6 @@ export const useGame = () => {
       setPrompt,
       setOptions,
       submitMatches,
-      setResults,
       nextRound,
       updateTime,
       endGame,

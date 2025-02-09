@@ -25,26 +25,49 @@ export const MatchingPhase = ({
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [draggablePlayers, setDraggablePlayers] = useState<Player[]>([]);
+  const [timer, setTimer] = useState(timeRemaining);
 
   useEffect(() => {
-    // Initialize draggable players, excluding the current player
-    setDraggablePlayers(players.filter(p => p.id !== currentPlayer.id));
-  }, [players, currentPlayer.id]);
+    // Initialize draggable players, including all players (even current player)
+    setDraggablePlayers(players);
+  }, [players]);
 
   useEffect(() => {
-    if (timeRemaining === 0 && !submitted) {
+    if (timer === 0 && !submitted) {
       handleSubmit();
+      return;
     }
-  }, [timeRemaining]);
+
+    const interval = setInterval(() => {
+      setTimer(prev => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer, submitted]);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
     const { draggableId, destination } = result;
-    setMatches(prev => ({
-      ...prev,
-      [destination.droppableId]: draggableId,
-    }));
+    
+    // Check if the player is already assigned to another option
+    const alreadyAssignedOption = Object.entries(matches).find(([_, playerId]) => playerId === draggableId);
+    if (alreadyAssignedOption) {
+      // Remove the player from the previous option
+      const [previousOption] = alreadyAssignedOption;
+      const updatedMatches = { ...matches };
+      delete updatedMatches[previousOption];
+      
+      // Assign to new option
+      updatedMatches[destination.droppableId] = draggableId;
+      setMatches(updatedMatches);
+    } else {
+      // Assign to new option
+      setMatches(prev => ({
+        ...prev,
+        [destination.droppableId]: draggableId,
+      }));
+    }
   };
 
   const handleSubmit = () => {
@@ -75,7 +98,7 @@ export const MatchingPhase = ({
       <Card className="w-full max-w-4xl p-6 space-y-6">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold text-game-neutral">Match Players to {currentPrompt}</h2>
-          <p className="text-xl font-semibold text-game-primary">{formatTime(timeRemaining)}</p>
+          <p className="text-xl font-semibold text-game-primary">{formatTime(timer)}</p>
         </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
