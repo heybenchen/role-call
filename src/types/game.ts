@@ -29,4 +29,5 @@ export type GameAction =
   | { type: 'SET_RESULTS'; results: Record<string, string> }
   | { type: 'NEXT_ROUND' }
   | { type: 'UPDATE_TIME'; time: number }
-  | { type: 'END_GAME' };
+  | { type: 'END_GAME' }
+  | { type: 'SET_LOBBY_CODE'; lobbyCode: string };
