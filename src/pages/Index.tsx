@@ -55,7 +55,7 @@ const Index = () => {
           <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
             <div className="w-full max-w-md p-6 space-y-6 backdrop-blur-sm bg-white/80 rounded-lg shadow-lg">
               <div className="text-center space-y-2">
-                <h1 className="text-3xl font-bold text-game-neutral">Party Game</h1>
+                <h1 className="text-3xl font-bold text-game-neutral">Re:cast</h1>
                 <p className="text-gray-600">Create a new game to get started!</p>
               </div>
               <Button
