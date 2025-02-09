@@ -353,7 +353,7 @@ export const useGame = () => {
         ...state.submissions,
         [playerId]: matches,
       };
-      await updateLobbyState({ phase: "results", submissions: updatedSubmissions }); // TODO: only progress to results if all players have submitted
+      await updateLobbyState({ submissions: updatedSubmissions });
     },
     [state.submissions, updateLobbyState]
   );
