@@ -24,6 +24,12 @@ export const MatchingPhase = ({
 }: MatchingPhaseProps) => {
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [draggablePlayers, setDraggablePlayers] = useState<Player[]>([]);
+
+  useEffect(() => {
+    // Initialize draggable players, excluding the current player
+    setDraggablePlayers(players.filter(p => p.id !== currentPlayer.id));
+  }, [players, currentPlayer.id]);
 
   useEffect(() => {
     if (timeRemaining === 0 && !submitted) {
@@ -54,6 +60,16 @@ export const MatchingPhase = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  if (!draggablePlayers.length || !options.length) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="p-6">
+          <p>Loading game...</p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-4xl p-6 space-y-6">
@@ -66,22 +82,31 @@ export const MatchingPhase = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Players</h3>
-              <div className="space-y-2">
-                {players.filter(p => p.id !== currentPlayer.id).map((player) => (
-                  <Draggable key={player.id} draggableId={player.id} index={players.indexOf(player)}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="p-3 bg-white rounded-lg shadow-sm border border-gray-200 cursor-move"
-                      >
-                        {player.name}
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-              </div>
+              <Droppable droppableId="players-list">
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="space-y-2"
+                  >
+                    {draggablePlayers.map((player, index) => (
+                      <Draggable key={player.id} draggableId={player.id} index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="p-3 bg-white rounded-lg shadow-sm border border-gray-200 cursor-move"
+                          >
+                            {player.name}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </div>
 
             <div className="space-y-4">
