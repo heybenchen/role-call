@@ -85,6 +85,11 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         phase: 'gameOver',
       };
+    case 'SET_LOBBY_CODE':
+      return {
+        ...state,
+        lobbyCode: action.lobbyCode,
+      };
     default:
       return state;
   }
@@ -133,6 +138,10 @@ export const useGame = () => {
     dispatch({ type: 'END_GAME' });
   }, []);
 
+  const setLobbyCode = useCallback((lobbyCode: string) => {
+    dispatch({ type: 'SET_LOBBY_CODE', lobbyCode });
+  }, []);
+
   return {
     state,
     actions: {
@@ -145,6 +154,7 @@ export const useGame = () => {
       nextRound,
       updateTime,
       endGame,
+      setLobbyCode,
     },
   };
 };

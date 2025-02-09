@@ -5,7 +5,7 @@ import { LobbyCreation } from '@/components/LobbyCreation';
 import { GameLobby } from '@/components/GameLobby';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
@@ -14,6 +14,13 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { lobbyCode } = useParams();
+
+  useEffect(() => {
+    if (lobbyCode && lobbyCode !== state.lobbyCode) {
+      actions.setLobbyCode(lobbyCode);
+    }
+  }, [lobbyCode, actions]);
 
   const handleJoin = (name: string) => {
     actions.joinGame({
@@ -49,7 +56,7 @@ const Index = () => {
         isJoiningGame ? (
           <LobbyCreation
             onJoin={handleJoin}
-            lobbyCode={state.lobbyCode}
+            lobbyCode={lobbyCode || state.lobbyCode}
           />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
