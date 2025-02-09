@@ -4,6 +4,7 @@ export type Player = {
   name: string;
   score: number;
   isHost: boolean;
+  pointsHistory: number[];
 };
 
 export type GameState = {
@@ -32,3 +33,4 @@ export type GameAction =
   | { type: 'END_GAME' }
   | { type: 'SET_LOBBY_CODE'; lobbyCode: string }
   | { type: 'UPDATE_GAME_STATE'; state: Partial<GameState> };
+

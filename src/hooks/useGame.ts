@@ -63,13 +63,17 @@ const updateScores = (
     const submission = submissions[player.id];
     if (!submission) return player;
 
-    const points = Object.entries(submission).reduce((score, [option, playerId]) => {
+    const roundPoints = Object.entries(submission).reduce((score, [option, playerId]) => {
       return results[option] === playerId ? score + 1 : score;
     }, 0);
 
+    const newPointsHistory = [...(player.pointsHistory || [])];
+    newPointsHistory[newPointsHistory.length] = roundPoints;
+
     return {
       ...player,
-      score: player.score + points,
+      pointsHistory: newPointsHistory,
+      score: newPointsHistory.reduce((sum, points) => sum + points, 0),
     };
   });
 };
@@ -82,7 +86,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       return {
         ...state,
-        players: [...state.players, action.player],
+        players: [...state.players, { ...action.player, pointsHistory: action.player.pointsHistory || [] }],
         totalRounds: state.players.length * 2,
       };
     case "START_GAME":
@@ -200,6 +204,7 @@ export const useGame = () => {
           name: playerData.name,
           score: player.score,
           isHost: player.isHost,
+          pointsHistory: player.pointsHistory || [],
         };
 
         const { data: lobbyData, error: lobbyError } = await supabase
