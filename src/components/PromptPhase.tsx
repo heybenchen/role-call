@@ -17,11 +17,12 @@ interface PromptPhaseProps {
 export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlayerTurn }: PromptPhaseProps) => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isPlayerTurn) return;
+    if (!isPlayerTurn || hasSubmitted) return;
     
     setIsLoading(true);
 
@@ -33,6 +34,7 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
       if (error) throw error;
 
       onPromptSubmit(prompt, data.options);
+      setHasSubmitted(true);
     } catch (error) {
       console.error('Error generating options:', error);
       toast({
@@ -53,9 +55,15 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
             {currentPlayer.name}'s Turn
           </h2>
           {isPlayerTurn ? (
-            <p className="text-gray-600">
-              Enter a category (e.g., "natural elements" or "Scooby Doo characters")
-            </p>
+            hasSubmitted ? (
+              <p className="text-gray-600">
+                Waiting for others to match the options...
+              </p>
+            ) : (
+              <p className="text-gray-600">
+                Enter a category (e.g., "natural elements" or "Scooby Doo characters")
+              </p>
+            )
           ) : (
             <p className="text-gray-600">
               Waiting for {currentPlayer.name} to enter a category...
@@ -63,7 +71,7 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
           )}
         </div>
 
-        {isPlayerTurn && (
+        {isPlayerTurn && !hasSubmitted && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="text"
@@ -85,3 +93,4 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
     </div>
   );
 };
+
