@@ -104,25 +104,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         options: action.options,
       };
     case "SUBMIT_MATCHES": {
-      const allPlayersSubmitted = Object.keys(state.submissions).length === state.players.length;
-
-      if (allPlayersSubmitted) {
-        const newSubmissions = {
-          ...state.submissions,
-          [action.playerId]: action.matches,
-        };
-        const results = calculateResults(newSubmissions, state.players);
-        const updatedPlayers = updateScores(state.players, newSubmissions, results);
-
-        return {
-          ...state,
-          submissions: newSubmissions,
-          results,
-          players: updatedPlayers,
-          phase: "results",
-        };
-      }
-
       return {
         ...state,
         submissions: {
@@ -131,12 +112,27 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         },
       };
     }
-    case "SET_RESULTS":
+    case "SET_RESULTS": {
+      const allPlayersSubmitted = Object.keys(state.submissions).length === state.players.length;
+
+      if (allPlayersSubmitted) {
+        const results = calculateResults(state.submissions, state.players);
+        const updatedPlayers = updateScores(state.players, state.submissions, results);
+
+        return {
+          ...state,
+          results,
+          players: updatedPlayers,
+          phase: "results",
+        };
+      }
+
       return {
         ...state,
         results: action.results,
         phase: "results",
       };
+    }
     case "NEXT_ROUND": {
       const nextPlayerIndex = (state.currentRound + 1) % state.players.length;
       return {
@@ -263,6 +259,8 @@ export const useGame = () => {
 
   const fetchLobby = useCallback(async (lobbyCode: string) => {
     try {
+      console.log("fetching lobby", lobbyCode);
+
       const { data, error } = await supabase
         .from("lobbies")
         .select("*")
@@ -288,8 +286,21 @@ export const useGame = () => {
           });
         }
       });
+
+      if (data.state && typeof data.state === "object") {
+        const state = data.state as GameState;
+        if (
+          state.phase === "matching" &&
+          state.submissions &&
+          state.players &&
+          Object.keys(state.submissions).length === state.players.length
+        ) {
+          dispatch({ type: "SET_RESULTS", results: state.results });
+        }
+      }
     } catch (error) {
       console.error("Error fetching lobby:", error);
+
       toast({
         title: "Error fetching lobby",
         description: "Please try again later",
