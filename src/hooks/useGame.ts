@@ -1,7 +1,7 @@
-
 import { useReducer, useCallback, useEffect } from 'react';
 import { GameState, GameAction, Player } from '@/types/game';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const generateLobbyCode = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -11,7 +11,7 @@ const generateLobbyCode = () => {
 };
 
 const initialState: GameState = {
-  lobbyCode: generateLobbyCode(),
+  lobbyCode: '',
   players: [],
   currentRound: 0,
   totalRounds: 0,
@@ -98,13 +98,139 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 export const useGame = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  const joinGame = useCallback((player: Player) => {
-    dispatch({ type: 'JOIN_GAME', player });
-    toast({
-      title: 'Player joined!',
-      description: `${player.name} has joined the game`,
-    });
+  const joinGame = useCallback(async (player: Player) => {
+    try {
+      // First, ensure the player exists in the players table
+      const { data: playerData, error: playerError } = await supabase
+        .from('players')
+        .upsert({ 
+          id: player.id,
+          name: player.name,
+        })
+        .select()
+        .single();
+
+      if (playerError) throw playerError;
+
+      // Then, update the lobby state to include the new player
+      const { data: lobbyData, error: lobbyError } = await supabase
+        .from('lobbies')
+        .upsert({
+          code: state.lobbyCode,
+          state: {
+            ...state,
+            players: [...state.players, playerData],
+            totalRounds: state.players.length * 2,
+          },
+        })
+        .select()
+        .single();
+
+      if (lobbyError) throw lobbyError;
+
+      dispatch({ type: 'JOIN_GAME', player: playerData });
+      toast({
+        title: 'Player joined!',
+        description: `${player.name} has joined the game`,
+      });
+    } catch (error) {
+      console.error('Error joining game:', error);
+      toast({
+        title: 'Error joining game',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    }
+  }, [state]);
+
+  const createLobby = useCallback(async () => {
+    try {
+      const newLobbyCode = generateLobbyCode();
+      const { error } = await supabase
+        .from('lobbies')
+        .insert({
+          code: newLobbyCode,
+          state: initialState,
+        });
+
+      if (error) throw error;
+
+      dispatch({ type: 'SET_LOBBY_CODE', lobbyCode: newLobbyCode });
+      return newLobbyCode;
+    } catch (error) {
+      console.error('Error creating lobby:', error);
+      toast({
+        title: 'Error creating lobby',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      return null;
+    }
   }, []);
+
+  const fetchLobby = useCallback(async (lobbyCode: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('lobbies')
+        .select('*')
+        .eq('code', lobbyCode)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        dispatch({ type: 'SET_LOBBY_CODE', lobbyCode: data.code });
+        Object.entries(data.state).forEach(([key, value]) => {
+          if (key === 'players') {
+            value.forEach((player: Player) => {
+              dispatch({ type: 'JOIN_GAME', player });
+            });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching lobby:', error);
+      toast({
+        title: 'Error fetching lobby',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    }
+  }, []);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    if (!state.lobbyCode) return;
+
+    const channel = supabase
+      .channel('lobby_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lobbies',
+          filter: `code=eq.${state.lobbyCode}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            const newState = (payload.new as any).state;
+            if (newState.players) {
+              newState.players.forEach((player: Player) => {
+                if (!state.players.find(p => p.id === player.id)) {
+                  dispatch({ type: 'JOIN_GAME', player });
+                }
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [state.lobbyCode, state.players]);
 
   const startGame = useCallback(() => {
     dispatch({ type: 'START_GAME' });
@@ -146,6 +272,8 @@ export const useGame = () => {
     state,
     actions: {
       joinGame,
+      createLobby,
+      fetchLobby,
       startGame,
       setPrompt,
       setOptions,

@@ -17,13 +17,13 @@ const Index = () => {
   const { lobbyCode } = useParams();
 
   useEffect(() => {
-    if (lobbyCode && lobbyCode !== state.lobbyCode) {
-      actions.setLobbyCode(lobbyCode);
+    if (lobbyCode) {
+      actions.fetchLobby(lobbyCode);
     }
   }, [lobbyCode, actions]);
 
-  const handleJoin = (name: string) => {
-    actions.joinGame({
+  const handleJoin = async (name: string) => {
+    await actions.joinGame({
       id: playerId,
       name,
       score: 0,
@@ -43,8 +43,11 @@ const Index = () => {
     actions.startGame();
   };
 
-  const handleCreateGame = () => {
-    navigate(`/join/${state.lobbyCode}`);
+  const handleCreateGame = async () => {
+    const newLobbyCode = await actions.createLobby();
+    if (newLobbyCode) {
+      navigate(`/join/${newLobbyCode}`);
+    }
   };
 
   const isHost = state.players.find(p => p.id === playerId)?.isHost;
