@@ -351,7 +351,7 @@ export const useGame = () => {
   const setOptions = useCallback(
     async (options: string[]) => {
       dispatch({ type: "SET_OPTIONS", options });
-      await updateLobbyState({ phase: "matching", options });
+      await updateLobbyState({ phase: "matching", options, timeRemaining: 90 });
     },
     [updateLobbyState]
   );
@@ -375,7 +375,7 @@ export const useGame = () => {
 
   const nextRound = useCallback(async () => {
     dispatch({ type: "NEXT_ROUND" });
-    await updateLobbyState({ phase: "prompt" });
+    await updateLobbyState({ phase: "prompt", submissions: {}, results: undefined });
   }, [updateLobbyState]);
 
   const endGame = useCallback(async () => {
