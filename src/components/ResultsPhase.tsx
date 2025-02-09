@@ -47,12 +47,21 @@ export const ResultsPhase = ({
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-center">Current Scores</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <h3 className="text-xl font-semibold text-center">Points History</h3>
+          <div className="grid grid-cols-1 gap-4">
             {players.map((player) => (
-              <div key={player.id} className="flex justify-between p-3 bg-white rounded-lg shadow-sm">
-                <span>{player.name}</span>
-                <span className="font-bold">{player.score} points</span>
+              <div key={player.id} className="p-4 bg-white rounded-lg shadow-sm space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">{player.name}</span>
+                  <span className="font-bold">Total: {player.score} points</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Points per round: {player.pointsHistory.map((points, index) => (
+                    <span key={index} className="inline-block mx-1">
+                      Round {index + 1}: {points}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -70,3 +79,4 @@ export const ResultsPhase = ({
     </div>
   );
 };
+
