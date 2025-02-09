@@ -31,6 +31,7 @@ const Index = () => {
       name,
       score: 0,
       isHost: state.players.length === 0,
+      pointsHistory: [],
     });
   };
 

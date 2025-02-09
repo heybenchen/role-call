@@ -86,7 +86,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       return {
         ...state,
-        players: [...state.players, { ...action.player, pointsHistory: [] }],
+        players: [...state.players, { ...action.player, pointsHistory: action.player.pointsHistory || [] }],
         totalRounds: state.players.length * 2,
       };
     case "START_GAME":
@@ -204,6 +204,7 @@ export const useGame = () => {
           name: playerData.name,
           score: player.score,
           isHost: player.isHost,
+          pointsHistory: player.pointsHistory || [],
         };
 
         const { data: lobbyData, error: lobbyError } = await supabase
