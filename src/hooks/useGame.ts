@@ -104,8 +104,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         options: action.options,
       };
     case "SUBMIT_MATCHES": {
-      const allPlayersSubmitted =
-        Object.keys(state.submissions).length + 1 >= state.players.length - 1;
+      const allPlayersSubmitted = Object.keys(state.submissions).length === state.players.length;
 
       if (allPlayersSubmitted) {
         const newSubmissions = {
@@ -353,9 +352,14 @@ export const useGame = () => {
         ...state.submissions,
         [playerId]: matches,
       };
-      await updateLobbyState({ submissions: updatedSubmissions });
+
+      if (Object.keys(state.submissions).length === state.players.length) {
+        await updateLobbyState({ phase: "results", submissions: updatedSubmissions });
+      } else {
+        await updateLobbyState({ submissions: updatedSubmissions });
+      }
     },
-    [state.submissions, updateLobbyState]
+    [state.players.length, state.submissions, updateLobbyState]
   );
 
   const nextRound = useCallback(async () => {

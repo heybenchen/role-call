@@ -1,9 +1,8 @@
-
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Player } from '@/types/game';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { useState, useEffect, useCallback } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Player } from "@/types/game";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 interface MatchingPhaseProps {
   currentPrompt: string;
@@ -30,6 +29,14 @@ export const MatchingPhase = ({
 
   const hasSubmitted = submissions[currentPlayer.id] !== undefined;
 
+  const handleSubmit = useCallback(() => {
+    if (!hasSubmitted) {
+      setIsLoading(true);
+      onSubmit(matches);
+      setIsLoading(false);
+    }
+  }, [hasSubmitted, matches, onSubmit]);
+
   useEffect(() => {
     if (timer === 0 && !hasSubmitted) {
       handleSubmit();
@@ -37,51 +44,44 @@ export const MatchingPhase = ({
     }
 
     const interval = setInterval(() => {
-      setTimer(prev => Math.max(0, prev - 1));
+      setTimer((prev) => Math.max(0, prev - 1));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timer, hasSubmitted]);
+  }, [timer, hasSubmitted, handleSubmit]);
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const { draggableId, destination } = result;
-    
-    const alreadyAssignedOption = Object.entries(matches).find(([_, playerId]) => playerId === draggableId);
+
+    const alreadyAssignedOption = Object.entries(matches).find(
+      ([_, playerId]) => playerId === draggableId
+    );
     if (alreadyAssignedOption) {
       const [previousOption] = alreadyAssignedOption;
       const updatedMatches = { ...matches };
       delete updatedMatches[previousOption];
-      
+
       updatedMatches[destination.droppableId] = draggableId;
       setMatches(updatedMatches);
     } else {
-      setMatches(prev => ({
+      setMatches((prev) => ({
         ...prev,
         [destination.droppableId]: draggableId,
       }));
     }
   };
 
-  const handleSubmit = () => {
-    if (!hasSubmitted) {
-      setIsLoading(true);
-      onSubmit(matches);
-      setIsLoading(false);
-    }
-  };
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const otherPlayers = players.filter(p => p.id !== currentPlayer.id);
-  const promptPlayer = players.find(p => p.id === players[0]?.id);
+  const promptPlayer = players.find((p) => p.id === players[0]?.id);
 
-  if (!otherPlayers.length || !options.length || !promptPlayer) {
+  if (!options.length || !promptPlayer) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="p-6">
@@ -92,7 +92,7 @@ export const MatchingPhase = ({
   }
 
   const submittedPlayersCount = Object.keys(submissions).length;
-  const remainingPlayers = players.length - 1 - submittedPlayersCount;
+  const remainingPlayers = players.length - submittedPlayersCount;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -102,7 +102,8 @@ export const MatchingPhase = ({
           <p className="text-xl font-semibold text-game-primary">{formatTime(timer)}</p>
           {hasSubmitted && (
             <p className="text-gray-600">
-              Waiting for {remainingPlayers} {remainingPlayers === 1 ? 'player' : 'players'} to submit...
+              Waiting for {remainingPlayers} {remainingPlayers === 1 ? "player" : "players"} to
+              submit...
             </p>
           )}
         </div>
@@ -114,12 +115,8 @@ export const MatchingPhase = ({
                 <h3 className="font-semibold text-lg">Players</h3>
                 <Droppable droppableId="players-list">
                   {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="space-y-2"
-                    >
-                      {otherPlayers.map((player, index) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                      {players.map((player, index) => (
                         <Draggable key={player.id} draggableId={player.id} index={index}>
                           {(provided) => (
                             <div
@@ -152,7 +149,7 @@ export const MatchingPhase = ({
                         <div className="font-medium mb-2">{option}</div>
                         {matches[option] && (
                           <div className="p-2 bg-white rounded shadow">
-                            {otherPlayers.find(p => p.id === matches[option])?.name}
+                            {players.find((p) => p.id === matches[option])?.name}
                           </div>
                         )}
                         {provided.placeholder}
@@ -171,11 +168,10 @@ export const MatchingPhase = ({
             disabled={isLoading}
             className="w-full bg-game-primary hover:bg-game-primary/90 text-white mt-4"
           >
-            {isLoading ? 'Submitting...' : 'Submit Matches'}
+            {isLoading ? "Submitting..." : "Submit Matches"}
           </Button>
         )}
       </Card>
     </div>
   );
 };
-
