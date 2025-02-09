@@ -1,4 +1,3 @@
-
 import { useReducer, useCallback, useEffect } from 'react';
 import { GameState, GameAction, Player } from '@/types/game';
 import { toast } from '@/hooks/use-toast';
@@ -19,6 +18,56 @@ const initialState: GameState = {
   submissions: {},
   timeRemaining: 90,
   phase: 'lobby',
+};
+
+const calculateResults = (submissions: Record<string, Record<string, string>>, players: Player[]): Record<string, string> => {
+  const results: Record<string, string> = {};
+  const optionCounts: Record<string, Record<string, number>> = {};
+  const assignedPlayers = new Set<string>();
+
+  Object.values(submissions).forEach(playerSubmission => {
+    Object.entries(playerSubmission).forEach(([option, playerId]) => {
+      if (!optionCounts[option]) {
+        optionCounts[option] = {};
+      }
+      optionCounts[option][playerId] = (optionCounts[option][playerId] || 0) + 1;
+    });
+  });
+
+  Object.entries(optionCounts).forEach(([option, counts]) => {
+    const sortedPlayers = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .filter(([playerId]) => !assignedPlayers.has(playerId))
+      .map(([playerId]) => playerId);
+
+    if (sortedPlayers.length > 0) {
+      const selectedPlayer = sortedPlayers[0];
+      results[option] = selectedPlayer;
+      assignedPlayers.add(selectedPlayer);
+    }
+  });
+
+  return results;
+};
+
+const updateScores = (
+  players: Player[],
+  submissions: Record<string, Record<string, string>>,
+  results: Record<string, string>
+): Player[] => {
+  return players.map(player => {
+    const submission = submissions[player.id];
+    if (!submission) return player;
+
+    const points = Object.entries(submission).reduce((score, [option, playerId]) => {
+      return results[option] === playerId ? score + 1 : score;
+    }, 0);
+
+    return {
+      ...player,
+      score: player.score + points,
+    };
+  });
 };
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
@@ -51,6 +100,26 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         options: action.options,
       };
     case 'SUBMIT_MATCHES':
+      const allPlayersSubmitted = 
+        Object.keys(state.submissions).length + 1 >= state.players.length - 1;
+
+      if (allPlayersSubmitted) {
+        const newSubmissions = {
+          ...state.submissions,
+          [action.playerId]: action.matches,
+        };
+        const results = calculateResults(newSubmissions, state.players);
+        const updatedPlayers = updateScores(state.players, newSubmissions, results);
+
+        return {
+          ...state,
+          submissions: newSubmissions,
+          results,
+          players: updatedPlayers,
+          phase: 'results',
+        };
+      }
+
       return {
         ...state,
         submissions: {
@@ -77,6 +146,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         options: undefined,
       };
     case 'UPDATE_TIME':
+      if (action.time === 0) {
+        return {
+          ...state,
+          timeRemaining: action.time,
+          phase: 'results',
+        };
+      }
       return {
         ...state,
         timeRemaining: action.time,
@@ -101,7 +177,6 @@ export const useGame = () => {
 
   const joinGame = useCallback(async (player: Player) => {
     try {
-      // First, ensure the player exists in the players table
       const { data: playerData, error: playerError } = await supabase
         .from('players')
         .upsert({ 
@@ -113,7 +188,6 @@ export const useGame = () => {
 
       if (playerError) throw playerError;
 
-      // Create the complete player object with game-specific properties
       const completePlayer: Player = {
         id: playerData.id,
         name: playerData.name,
@@ -121,7 +195,6 @@ export const useGame = () => {
         isHost: player.isHost,
       };
 
-      // Then, update the lobby state to include the new player
       const { data: lobbyData, error: lobbyError } = await supabase
         .from('lobbies')
         .upsert({
@@ -214,7 +287,6 @@ export const useGame = () => {
     }
   }, []);
 
-  // Subscribe to real-time updates
   useEffect(() => {
     if (!state.lobbyCode) return;
 

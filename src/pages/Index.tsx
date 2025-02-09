@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import { useGame } from '@/hooks/useGame';
 import { LobbyCreation } from '@/components/LobbyCreation';
 import { GameLobby } from '@/components/GameLobby';
+import { PromptPhase } from '@/components/PromptPhase';
+import { MatchingPhase } from '@/components/MatchingPhase';
+import { ResultsPhase } from '@/components/ResultsPhase';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -50,8 +53,23 @@ const Index = () => {
     }
   };
 
-  const isHost = state.players.find(p => p.id === playerId)?.isHost;
+  const handlePromptSubmit = (prompt: string, options: string[]) => {
+    actions.setPrompt(prompt);
+    actions.setOptions(options);
+  };
+
+  const handleMatchSubmit = (matches: Record<string, string>) => {
+    actions.submitMatches(playerId, matches);
+  };
+
+  const handleNextRound = () => {
+    actions.nextRound();
+  };
+
+  const currentPlayer = state.players.find(p => p.id === playerId);
+  const isHost = currentPlayer?.isHost ?? false;
   const isJoiningGame = location.pathname.includes('/join/');
+  const promptPlayer = state.players.find(p => p.id === state.promptPlayerId);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,11 +101,39 @@ const Index = () => {
         <GameLobby
           players={state.players}
           onStart={handleStart}
-          isHost={isHost ?? false}
+          isHost={isHost}
         />
       )}
-      
-      {/* We'll implement other game phases in the next iteration */}
+
+      {state.phase === 'prompt' && promptPlayer && (
+        <PromptPhase
+          currentPlayer={promptPlayer}
+          onPromptSubmit={handlePromptSubmit}
+          playerCount={state.players.length}
+        />
+      )}
+
+      {state.phase === 'matching' && promptPlayer && state.currentPrompt && state.options && (
+        <MatchingPhase
+          currentPrompt={state.currentPrompt}
+          options={state.options}
+          players={state.players}
+          currentPlayer={currentPlayer!}
+          timeRemaining={state.timeRemaining}
+          onSubmit={handleMatchSubmit}
+        />
+      )}
+
+      {state.phase === 'results' && state.currentPrompt && state.options && state.results && (
+        <ResultsPhase
+          prompt={state.currentPrompt}
+          options={state.options}
+          results={state.results}
+          players={state.players}
+          onNextRound={handleNextRound}
+          isHost={isHost}
+        />
+      )}
     </div>
   );
 };
