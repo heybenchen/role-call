@@ -183,20 +183,27 @@ export const useGame = () => {
         .from('lobbies')
         .select('*')
         .eq('code', lobbyCode)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
-      if (data) {
-        dispatch({ type: 'SET_LOBBY_CODE', lobbyCode: data.code });
-        Object.entries(data.state).forEach(([key, value]) => {
-          if (key === 'players') {
-            value.forEach((player: Player) => {
-              dispatch({ type: 'JOIN_GAME', player });
-            });
-          }
+      if (!data) {
+        toast({
+          title: 'Lobby not found',
+          description: 'The lobby code you entered does not exist',
+          variant: 'destructive',
         });
+        return;
       }
+
+      dispatch({ type: 'SET_LOBBY_CODE', lobbyCode: data.code });
+      Object.entries(data.state).forEach(([key, value]) => {
+        if (key === 'players') {
+          value.forEach((player: Player) => {
+            dispatch({ type: 'JOIN_GAME', player });
+          });
+        }
+      });
     } catch (error) {
       console.error('Error fetching lobby:', error);
       toast({
