@@ -1,3 +1,4 @@
+
 import { useReducer, useCallback, useEffect } from 'react';
 import { GameState, GameAction, Player } from '@/types/game';
 import { toast } from '@/hooks/use-toast';
@@ -112,6 +113,14 @@ export const useGame = () => {
 
       if (playerError) throw playerError;
 
+      // Create the complete player object with game-specific properties
+      const completePlayer: Player = {
+        id: playerData.id,
+        name: playerData.name,
+        score: player.score,
+        isHost: player.isHost,
+      };
+
       // Then, update the lobby state to include the new player
       const { data: lobbyData, error: lobbyError } = await supabase
         .from('lobbies')
@@ -119,7 +128,7 @@ export const useGame = () => {
           code: state.lobbyCode,
           state: {
             ...state,
-            players: [...state.players, playerData],
+            players: [...state.players, completePlayer],
             totalRounds: state.players.length * 2,
           },
         })
@@ -128,7 +137,7 @@ export const useGame = () => {
 
       if (lobbyError) throw lobbyError;
 
-      dispatch({ type: 'JOIN_GAME', player: playerData });
+      dispatch({ type: 'JOIN_GAME', player: completePlayer });
       toast({
         title: 'Player joined!',
         description: `${player.name} has joined the game`,
