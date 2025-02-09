@@ -167,6 +167,11 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         lobbyCode: action.lobbyCode,
       };
+    case 'UPDATE_GAME_STATE':
+      return {
+        ...state,
+        ...action.state,
+      };
     default:
       return state;
   }
@@ -350,28 +355,7 @@ export const useGame = () => {
         (payload) => {
           if (payload.new) {
             const newState = (payload.new as any).state;
-            
-            // Update game phase
-            if (newState.phase !== state.phase) {
-              dispatch({ type: newState.phase === 'prompt' ? 'START_GAME' : 'SET_PHASE', phase: newState.phase });
-            }
-
-            // Update prompt and options
-            if (newState.currentPrompt && newState.currentPrompt !== state.currentPrompt) {
-              dispatch({ type: 'SET_PROMPT', prompt: newState.currentPrompt });
-            }
-            if (newState.options && JSON.stringify(newState.options) !== JSON.stringify(state.options)) {
-              dispatch({ type: 'SET_OPTIONS', options: newState.options });
-            }
-
-            // Update submissions and results
-            if (newState.submissions && JSON.stringify(newState.submissions) !== JSON.stringify(state.submissions)) {
-              Object.entries(newState.submissions).forEach(([playerId, matches]) => {
-                if (!state.submissions[playerId]) {
-                  dispatch({ type: 'SUBMIT_MATCHES', playerId, matches: matches as Record<string, string> });
-                }
-              });
-            }
+            dispatch({ type: 'UPDATE_GAME_STATE', state: newState });
           }
         }
       )
@@ -380,7 +364,7 @@ export const useGame = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [state.lobbyCode, state.phase, state.currentPrompt, state.options, state.submissions]);
+  }, [state.lobbyCode]);
 
   const nextRound = useCallback(() => {
     dispatch({ type: 'NEXT_ROUND' });

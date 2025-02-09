@@ -30,4 +30,5 @@ export type GameAction =
   | { type: 'NEXT_ROUND' }
   | { type: 'UPDATE_TIME'; time: number }
   | { type: 'END_GAME' }
-  | { type: 'SET_LOBBY_CODE'; lobbyCode: string };
+  | { type: 'SET_LOBBY_CODE'; lobbyCode: string }
+  | { type: 'UPDATE_GAME_STATE'; state: Partial<GameState> };
