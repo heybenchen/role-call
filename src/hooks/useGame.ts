@@ -2,6 +2,7 @@ import { useReducer, useCallback, useEffect } from "react";
 import { GameState, GameAction, Player } from "@/types/game";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 const generateLobbyCode = () => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -332,7 +333,7 @@ export const useGame = () => {
   const setPrompt = useCallback(
     async (prompt: string) => {
       dispatch({ type: "SET_PROMPT", prompt });
-      await updateLobbyState({ currentPrompt: prompt });
+      await updateLobbyState({ phase: "matching", currentPrompt: prompt });
     },
     [updateLobbyState]
   );
@@ -340,7 +341,7 @@ export const useGame = () => {
   const setOptions = useCallback(
     async (options: string[]) => {
       dispatch({ type: "SET_OPTIONS", options });
-      await updateLobbyState({ options });
+      await updateLobbyState({ phase: "matching", options });
     },
     [updateLobbyState]
   );
@@ -352,10 +353,20 @@ export const useGame = () => {
         ...state.submissions,
         [playerId]: matches,
       };
-      await updateLobbyState({ submissions: updatedSubmissions });
+      await updateLobbyState({ phase: "results", submissions: updatedSubmissions }); // TODO: only progress to results if all players have submitted
     },
     [state.submissions, updateLobbyState]
   );
+
+  const nextRound = useCallback(async () => {
+    dispatch({ type: "NEXT_ROUND" });
+    await updateLobbyState({ phase: "prompt" });
+  }, [updateLobbyState]);
+
+  const endGame = useCallback(async () => {
+    dispatch({ type: "END_GAME" });
+    await updateLobbyState({ phase: "gameOver" });
+  }, [updateLobbyState]);
 
   useEffect(() => {
     if (!state.lobbyCode) return;
@@ -370,9 +381,13 @@ export const useGame = () => {
           table: "lobbies",
           filter: `code=eq.${state.lobbyCode}`,
         },
-        (payload) => {
-          if (payload.new) {
-            const newState = (payload.new as any).state;
+        (
+          payload: RealtimePostgresChangesPayload<{
+            state: GameState;
+          }>
+        ) => {
+          if (payload.new && "state" in payload.new) {
+            const newState = payload.new.state;
             dispatch({ type: "UPDATE_GAME_STATE", state: newState });
           }
         }
@@ -384,16 +399,8 @@ export const useGame = () => {
     };
   }, [state.lobbyCode]);
 
-  const nextRound = useCallback(() => {
-    dispatch({ type: "NEXT_ROUND" });
-  }, []);
-
   const updateTime = useCallback((time: number) => {
     dispatch({ type: "UPDATE_TIME", time });
-  }, []);
-
-  const endGame = useCallback(() => {
-    dispatch({ type: "END_GAME" });
   }, []);
 
   const setLobbyCode = useCallback((lobbyCode: string) => {
