@@ -27,7 +27,7 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
       <Card className="w-full max-w-md p-6 space-y-6 backdrop-blur-sm bg-white/80">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-game-neutral">Party Game</h1>
+          <h1 className="text-3xl font-bold text-game-neutral">Play Re:cast</h1>
           <p className="text-gray-600">Create or join a game to get started!</p>
         </div>
 
