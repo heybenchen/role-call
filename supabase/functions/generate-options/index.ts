@@ -17,6 +17,12 @@ serve(async (req) => {
   try {
     const { prompt, playerCount } = await req.json();
 
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
+    console.log(`Generating ${playerCount} options for prompt: ${prompt}`);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -24,7 +30,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4-0125-preview',
         messages: [
           { 
             role: 'system', 
@@ -38,8 +44,27 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
     const data = await response.json();
+    
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Unexpected OpenAI response format:', data);
+      throw new Error('Invalid response format from OpenAI');
+    }
+
     const options = data.choices[0].message.content.split(',').map((item: string) => item.trim());
+
+    console.log('Generated options:', options);
+
+    if (options.length !== playerCount) {
+      console.error(`Expected ${playerCount} options but got ${options.length}`);
+      throw new Error(`Invalid number of options generated. Expected ${playerCount}, got ${options.length}`);
+    }
 
     return new Response(JSON.stringify({ options }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
