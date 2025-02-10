@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -11,7 +11,9 @@ interface LobbyCreationProps {
 }
 
 export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(() => {
+    return sessionStorage.getItem("playerName") || "";
+  });
 
   const copyInviteLink = () => {
     const url = `${window.location.origin}/join/${lobbyCode}`;

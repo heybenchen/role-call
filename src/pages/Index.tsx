@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useGame } from "@/hooks/useGame";
 import { LobbyCreation } from "@/components/LobbyCreation";
@@ -13,11 +12,18 @@ import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { state, actions } = useGame();
-  const [playerId] = useState(uuidv4());
+  const [playerId, setPlayerId] = useState<string>(() => {
+    const storedId = sessionStorage.getItem("playerId");
+    return storedId || uuidv4();
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { lobbyCode } = useParams();
+
+  useEffect(() => {
+    sessionStorage.setItem("playerId", playerId);
+  }, [playerId]);
 
   useEffect(() => {
     if (lobbyCode) {
@@ -26,6 +32,8 @@ const Index = () => {
   }, [lobbyCode, actions]);
 
   const handleJoin = async (name: string) => {
+    sessionStorage.setItem("playerName", name);
+
     await actions.joinGame({
       id: playerId,
       name,
@@ -84,7 +92,9 @@ const Index = () => {
               <div className="text-center space-y-4">
                 <h1 className="text-4xl font-bold text-game-primary">Role Models</h1>
                 <p className="text-xl font-semibold text-game-neutral">
-                  Typecast your friends. Match the crowd.
+                  Typecast your friends.
+                  <br />
+                  Match the crowd.
                 </p>
               </div>
               <Button
@@ -141,4 +151,3 @@ const Index = () => {
 };
 
 export default Index;
-
