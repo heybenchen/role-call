@@ -90,7 +90,7 @@ const Index = () => {
           <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
             <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral transform transition-transform hover:-translate-y-1">
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-game-primary">Role Models</h1>
+                <h1 className="text-4xl font-bold text-game-primary">Role Call</h1>
                 <p className="text-xl font-semibold text-game-neutral">
                   Typecast your friends.
                   <br />
