@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useGame } from "@/hooks/useGame";
 import { LobbyCreation } from "@/components/LobbyCreation";
@@ -61,8 +62,8 @@ const Index = () => {
     actions.submitMatches(playerId, matches);
   };
 
-  const handleNextRound = () => {
-    actions.nextRound();
+  const handlePlayerReady = (playerId: string) => {
+    actions.markPlayerReady(playerId);
   };
 
   const currentPlayer = state.players.find((p) => p.id === playerId);
@@ -125,9 +126,12 @@ const Index = () => {
           options={state.options}
           results={state.results}
           players={state.players}
-          onNextRound={handleNextRound}
+          onNextRound={actions.nextRound}
           isHost={isHost}
           submissions={state.submissions}
+          currentPlayerId={playerId}
+          onPlayerReady={handlePlayerReady}
+          readyPlayers={state.ready_players}
         />
       )}
     </div>

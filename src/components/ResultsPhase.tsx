@@ -1,6 +1,8 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/game";
+import { CheckCircle2 } from "lucide-react";
 
 interface ResultsPhaseProps {
   prompt: string;
@@ -10,6 +12,9 @@ interface ResultsPhaseProps {
   onNextRound: () => void;
   isHost: boolean;
   submissions: Record<string, Record<string, string>>;
+  currentPlayerId: string;
+  onPlayerReady: (playerId: string) => void;
+  readyPlayers: string[];
 }
 
 export const ResultsPhase = ({
@@ -20,7 +25,13 @@ export const ResultsPhase = ({
   onNextRound,
   isHost,
   submissions,
+  currentPlayerId,
+  onPlayerReady,
+  readyPlayers,
 }: ResultsPhaseProps) => {
+  const isPlayerReady = readyPlayers.includes(currentPlayerId);
+  const allPlayersReady = readyPlayers.length === players.length;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-2xl p-6 space-y-6">
@@ -71,7 +82,12 @@ export const ResultsPhase = ({
             {players.map((player) => (
               <div key={player.id} className="p-4 bg-white rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-lg">{player.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-lg">{player.name}</span>
+                    {readyPlayers.includes(player.id) && (
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    )}
+                  </div>
                   <span className="font-bold text-game-primary text-lg">Total: {player.score}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -89,14 +105,21 @@ export const ResultsPhase = ({
           </div>
         </div>
 
-        {isHost && (
-          <Button
-            onClick={onNextRound}
-            className="w-full bg-game-primary hover:bg-game-primary/90 text-white"
-          >
-            Next Round
-          </Button>
-        )}
+        <div className="flex justify-center">
+          {!isPlayerReady ? (
+            <Button
+              onClick={() => onPlayerReady(currentPlayerId)}
+              className="bg-game-primary hover:bg-game-primary/90 text-white"
+            >
+              Ready for Next Round
+            </Button>
+          ) : (
+            <p className="text-gray-600">
+              Waiting for {players.length - readyPlayers.length} more player
+              {players.length - readyPlayers.length === 1 ? "" : "s"}...
+            </p>
+          )}
+        </div>
       </Card>
     </div>
   );

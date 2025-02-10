@@ -1,3 +1,4 @@
+
 export type Player = {
   id: string;
   name: string;
@@ -18,6 +19,7 @@ export type GameState = {
   timeRemaining: number;
   phase: "lobby" | "prompt" | "matching" | "results" | "gameOver";
   promptPlayerId?: string;
+  ready_players: string[];
 };
 
 export type GameAction =
@@ -31,4 +33,6 @@ export type GameAction =
   | { type: "UPDATE_TIME"; time: number }
   | { type: "END_GAME" }
   | { type: "SET_LOBBY_CODE"; lobbyCode: string }
-  | { type: "UPDATE_GAME_STATE"; state: Partial<GameState> };
+  | { type: "UPDATE_GAME_STATE"; state: Partial<GameState> }
+  | { type: "MARK_PLAYER_READY"; playerId: string };
+
