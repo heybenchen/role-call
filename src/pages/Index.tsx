@@ -73,20 +73,20 @@ const Index = () => {
   const isPlayerTurn = playerId === state.promptPlayerId;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FEF7CD]">
       {state.phase === "lobby" &&
         !state.players.find((p) => p.id === playerId) &&
         (isJoiningGame ? (
           <LobbyCreation onJoin={handleJoin} lobbyCode={lobbyCode || state.lobbyCode} />
         ) : (
-          <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
-            <div className="w-full max-w-md p-6 space-y-6 backdrop-blur-sm bg-white/80 rounded-lg shadow-lg">
-              <div className="text-center space-y-2">
-                <h1 className="text-3xl font-bold text-game-neutral">Re:cast</h1>
-                <p className="text-gray-600">Create a new game to get started!</p>
+          <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral transform transition-transform hover:-translate-y-1">
+              <div className="text-center space-y-4">
+                <h1 className="text-4xl font-bold text-game-primary">Re:cast</h1>
+                <p className="text-xl font-semibold text-game-neutral">Build your story, brick by brick!</p>
               </div>
               <Button
-                className="w-full bg-game-primary hover:bg-game-primary/90 text-white"
+                className="w-full h-14 text-xl font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1"
                 onClick={handleCreateGame}
               >
                 Create Game
