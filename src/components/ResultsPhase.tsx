@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/game";
@@ -56,15 +55,20 @@ export const ResultsPhase = ({
 
             return (
               <div key={option} className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2">
-                <div className="text-xl font-bold text-game-neutral">{option}</div>
-                {matchedPlayer && (
-                  <div className="text-lg font-semibold text-game-primary mb-2">
-                    Winner: {matchedPlayer.name}
-                  </div>
-                )}
-                <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="text-lg font-bold text-game-neutral">{option}:</div>
+                  {matchedPlayer ? (
+                    <div className="text-lg font-semibold text-game-primary">
+                      {matchedPlayer.name}
+                    </div>
+                  ) : (
+                    <div className="text-lg font-semibold text-game-primary">??</div>
+                  )}
+                </div>
+
+                <div className="space-y-1">
                   {playerVotes.map((vote, index) => (
-                    <div key={index} className="flex items-center space-x-2 text-lg">
+                    <div key={index} className="flex items-center space-x-2 text-sm">
                       <span className="font-semibold text-game-neutral">{vote.voterName}:</span>
                       <span className="text-game-secondary">{vote.votedForName}</span>
                     </div>
@@ -76,26 +80,26 @@ export const ResultsPhase = ({
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-2xl font-bold text-game-primary text-center">Points History</h3>
+          <h3 className="text-xl font-bold text-game-primary text-center">Points History</h3>
           <div className="grid grid-cols-1 gap-4">
             {players.map((player) => (
               <div key={player.id} className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm">
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-game-neutral">{player.name}</span>
+                    <span className="text-md font-bold text-game-neutral">{player.name}</span>
                     {readyPlayers.includes(player.id) && (
                       <CheckCircle2 className="h-6 w-6 text-game-success" />
                     )}
                   </div>
-                  <span className="text-xl font-bold text-game-primary">Total: {player.score}</span>
+                  <span className="text-md font-bold text-game-primary">Total: {player.score}</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {player.pointsHistory.map((points, index) => (
                     <div
                       key={index}
-                      className="px-2 py-1 bg-white rounded-full text-sm font-semibold text-game-neutral shadow-lego-sm"
+                      className="px-2.5 py-1 bg-white rounded-full font-semibold text-sm text-game-neutral border-2"
                     >
-                      R{index + 1}: {points}
+                      {points}
                     </div>
                   ))}
                 </div>
@@ -104,7 +108,7 @@ export const ResultsPhase = ({
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center items-center min-h-[50px]">
           {!isPlayerReady ? (
             <Button
               onClick={() => onPlayerReady(currentPlayerId)}
