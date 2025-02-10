@@ -11,9 +11,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
+const STORAGE_KEY = 'recast_player_id';
+
 const Index = () => {
   const { state, actions } = useGame();
-  const [playerId] = useState(uuidv4());
+  const [playerId] = useState(() => {
+    const storedId = localStorage.getItem(STORAGE_KEY);
+    if (storedId) return storedId;
+    const newId = uuidv4();
+    localStorage.setItem(STORAGE_KEY, newId);
+    return newId;
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,9 +29,16 @@ const Index = () => {
 
   useEffect(() => {
     if (lobbyCode) {
-      actions.fetchLobby(lobbyCode);
+      actions.fetchLobby(lobbyCode).then(() => {
+        // Check if player was already in the game
+        const existingPlayer = state.players.find(p => p.id === playerId);
+        if (existingPlayer) {
+          console.log('Player already in game, auto-joining...', existingPlayer);
+          handleJoin(existingPlayer.name);
+        }
+      });
     }
-  }, [lobbyCode, actions]);
+  }, [lobbyCode, actions, playerId]);
 
   const handleJoin = async (name: string) => {
     await actions.joinGame({
@@ -80,6 +95,7 @@ const Index = () => {
           <LobbyCreation
             onJoin={handleJoin}
             lobbyCode={lobbyCode || state.lobbyCode}
+            playerId={playerId}
           />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
