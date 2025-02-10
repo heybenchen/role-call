@@ -33,11 +33,11 @@ export const ResultsPhase = ({
   const allPlayersReady = readyPlayers.length === players.length;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-2xl p-6 space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-game-neutral">Round Results</h2>
-          <p className="text-gray-600">Category: {prompt}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
+      <Card className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold text-game-primary">Round Results</h2>
+          <p className="text-xl font-semibold text-game-neutral">Category: {prompt}</p>
         </div>
 
         <div className="space-y-4">
@@ -55,19 +55,19 @@ export const ResultsPhase = ({
             });
 
             return (
-              <div key={option} className="p-4 bg-gray-50 rounded-lg space-y-2">
-                <div className="font-medium text-lg">{option}</div>
+              <div key={option} className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2">
+                <div className="text-xl font-bold text-game-neutral">{option}</div>
                 {matchedPlayer && (
-                  <div className="text-game-primary font-semibold mb-2">
+                  <div className="text-lg font-semibold text-game-primary mb-2">
                     Winner: {matchedPlayer.name}
                   </div>
                 )}
-                <div className="space-y-1">
-                  <div className="text-sm font-medium text-gray-600 mb-1">Votes:</div>
+                <div className="space-y-2">
+                  <div className="text-lg font-semibold text-game-neutral mb-1">Votes:</div>
                   {playerVotes.map((vote, index) => (
-                    <div key={index} className="text-sm flex items-center space-x-2">
-                      <span className="font-medium">{vote.voterName}:</span>
-                      <span className="text-gray-600">{vote.votedForName}</span>
+                    <div key={index} className="flex items-center space-x-2 text-lg">
+                      <span className="font-semibold text-game-neutral">{vote.voterName}:</span>
+                      <span className="text-game-secondary">{vote.votedForName}</span>
                     </div>
                   ))}
                 </div>
@@ -77,24 +77,24 @@ export const ResultsPhase = ({
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-center">Points History</h3>
+          <h3 className="text-2xl font-bold text-game-primary text-center">Points History</h3>
           <div className="grid grid-cols-1 gap-4">
             {players.map((player) => (
-              <div key={player.id} className="p-4 bg-white rounded-lg shadow-sm">
+              <div key={player.id} className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm">
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-lg">{player.name}</span>
+                    <span className="text-xl font-bold text-game-neutral">{player.name}</span>
                     {readyPlayers.includes(player.id) && (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <CheckCircle2 className="h-6 w-6 text-game-success" />
                     )}
                   </div>
-                  <span className="font-bold text-game-primary text-lg">Total: {player.score}</span>
+                  <span className="text-xl font-bold text-game-primary">Total: {player.score}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {player.pointsHistory.map((points, index) => (
                     <div
                       key={index}
-                      className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium"
+                      className="px-4 py-2 bg-white rounded-full text-lg font-semibold text-game-neutral shadow-lego-sm"
                     >
                       R{index + 1}: {points}
                     </div>
@@ -109,12 +109,12 @@ export const ResultsPhase = ({
           {!isPlayerReady ? (
             <Button
               onClick={() => onPlayerReady(currentPlayerId)}
-              className="bg-game-primary hover:bg-game-primary/90 text-white"
+              className="h-12 px-6 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1"
             >
               Ready for Next Round
             </Button>
           ) : (
-            <p className="text-gray-600">
+            <p className="text-xl font-semibold text-game-neutral">
               Waiting for {players.length - readyPlayers.length} more player
               {players.length - readyPlayers.length === 1 ? "" : "s"}...
             </p>

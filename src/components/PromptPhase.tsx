@@ -48,24 +48,24 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-game-neutral">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
+      <Card className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral transform transition-transform hover:-translate-y-1">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold text-game-primary">
             {currentPlayer.name}'s Turn
           </h2>
           {isPlayerTurn ? (
             hasSubmitted ? (
-              <p className="text-gray-600">
+              <p className="text-xl font-semibold text-game-neutral">
                 Waiting for others to match the options...
               </p>
             ) : (
-              <p className="text-gray-600">
+              <p className="text-xl font-semibold text-game-neutral">
                 Enter a category (e.g., "natural elements" or "Scooby Doo characters")
               </p>
             )
           ) : (
-            <p className="text-gray-600">
+            <p className="text-xl font-semibold text-game-neutral">
               Waiting for {currentPlayer.name} to enter a category...
             </p>
           )}
@@ -79,10 +79,11 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isLoading}
+              className="h-12 text-lg border-2 border-game-neutral rounded-lg shadow-lego-sm focus:ring-2 focus:ring-game-primary"
             />
             <Button
               type="submit"
-              className="w-full bg-game-primary hover:bg-game-primary/90 text-white"
+              className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
               disabled={!prompt.trim() || isLoading}
             >
               {isLoading ? 'Generating options...' : 'Submit Category'}
@@ -93,4 +94,3 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
     </div>
   );
 };
-

@@ -108,9 +108,9 @@ export const MatchingPhase = ({
 
   if (!options.length || !promptPlayer) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="p-6">
-          <p>Loading game...</p>
+      <div className="flex items-center justify-center min-h-screen bg-[#FEF7CD]">
+        <Card className="p-8 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
+          <p className="text-xl font-semibold text-game-neutral">Loading game...</p>
         </Card>
       </div>
     );
@@ -125,15 +125,15 @@ export const MatchingPhase = ({
     .join(", ");
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-4xl p-6 space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-game-neutral">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
+      <Card className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold text-game-primary">
             Match players to: "{currentPrompt.toLocaleLowerCase()}"
           </h2>
-          <p className="text-xl font-semibold text-game-primary">{formatTime(timer)}</p>
+          <p className="text-2xl font-bold text-game-neutral">{formatTime(timer)}</p>
           {hasSubmitted && (
-            <p className="text-gray-600">Waiting for {remainingPlayerNames} to submit...</p>
+            <p className="text-xl font-semibold text-game-neutral">Waiting for {remainingPlayerNames} to submit...</p>
           )}
         </div>
 
@@ -141,13 +141,13 @@ export const MatchingPhase = ({
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Players</h3>
+                <h3 className="text-xl font-bold text-game-neutral">Players</h3>
                 <Droppable droppableId="players-list">
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="space-y-2 min-h-[100px] p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+                      className="space-y-2 min-h-[100px] p-4 bg-[#F1F0FB] rounded-xl border-2 border-dashed border-game-neutral shadow-lego-sm"
                     >
                       {unassignedPlayers.map((player, index) => (
                         <Draggable key={player.id} draggableId={player.id} index={index}>
@@ -156,7 +156,7 @@ export const MatchingPhase = ({
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="p-3 bg-white rounded-lg shadow-sm border border-gray-200 cursor-move"
+                              className="p-4 bg-white rounded-lg shadow-lego-sm border-2 border-game-neutral cursor-move transform transition-transform hover:-translate-y-1"
                             >
                               {player.name}
                             </div>
@@ -170,16 +170,16 @@ export const MatchingPhase = ({
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-semibold text-lg">Categories</h3>
+                <h3 className="text-xl font-bold text-game-neutral">Categories</h3>
                 {options.map((option) => (
                   <Droppable key={option} droppableId={option}>
                     {(provided) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className="p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 min-h-[60px]"
+                        className="p-4 bg-[#F1F0FB] rounded-xl border-2 border-dashed border-game-neutral shadow-lego-sm min-h-[60px]"
                       >
-                        <div className="font-medium mb-2">{option}</div>
+                        <div className="font-semibold text-lg text-game-neutral mb-2">{option}</div>
                         {matches[option] && (
                           <Draggable draggableId={matches[option]} index={0}>
                             {(provided) => (
@@ -187,7 +187,7 @@ export const MatchingPhase = ({
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className="p-2 bg-white rounded shadow cursor-move"
+                                className="p-4 bg-white rounded-lg shadow-lego-sm border-2 border-game-neutral cursor-move transform transition-transform hover:-translate-y-1"
                               >
                                 {players.find((p) => p.id === matches[option])?.name}
                               </div>
@@ -208,7 +208,7 @@ export const MatchingPhase = ({
           <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full bg-game-primary hover:bg-game-primary/90 text-white mt-4"
+            className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 mt-4"
           >
             {isLoading ? "Submitting..." : "Submit Matches"}
           </Button>
