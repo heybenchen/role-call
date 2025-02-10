@@ -133,7 +133,11 @@ export const MatchingPhase = ({
   const remainingPlayerNames = players
     .filter((p) => !submissions[p.id])
     .map((p) => p.name)
-    .join(", ");
+    .reduce((acc, name, index, array) => {
+      if (index === 0) return name;
+      if (index === array.length - 1) return `${acc} and ${name}`;
+      return `${acc}, ${name}`;
+    }, "");
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
