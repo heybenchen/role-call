@@ -10,6 +10,7 @@ interface ResultsPhaseProps {
   players: Player[];
   onNextRound: () => void;
   isHost: boolean;
+  submissions: Record<string, Record<string, string>>;
 }
 
 export const ResultsPhase = ({
@@ -19,6 +20,7 @@ export const ResultsPhase = ({
   players,
   onNextRound,
   isHost,
+  submissions,
 }: ResultsPhaseProps) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -32,15 +34,33 @@ export const ResultsPhase = ({
           {options.map((option) => {
             const matchedPlayerId = results[option];
             const matchedPlayer = players.find(p => p.id === matchedPlayerId);
+            const playerVotes = players.map(player => {
+              const playerSubmission = submissions[player.id];
+              const votedForPlayerId = playerSubmission?.[option];
+              const votedForPlayer = players.find(p => p.id === votedForPlayerId);
+              return {
+                voterName: player.name,
+                votedForName: votedForPlayer?.name || 'No vote'
+              };
+            });
             
             return (
               <div key={option} className="p-4 bg-gray-50 rounded-lg space-y-2">
-                <div className="font-medium">{option}</div>
+                <div className="font-medium text-lg">{option}</div>
                 {matchedPlayer && (
-                  <div className="text-game-primary font-semibold">
+                  <div className="text-game-primary font-semibold mb-2">
                     Matched with: {matchedPlayer.name}
                   </div>
                 )}
+                <div className="space-y-1">
+                  <div className="text-sm font-medium text-gray-600 mb-1">Player Votes:</div>
+                  {playerVotes.map((vote, index) => (
+                    <div key={index} className="text-sm flex items-center space-x-2">
+                      <span className="font-medium">{vote.voterName}:</span>
+                      <span className="text-gray-600">{vote.votedForName}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             );
           })}
@@ -84,4 +104,3 @@ export const ResultsPhase = ({
     </div>
   );
 };
-
