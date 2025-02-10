@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/game";
@@ -63,7 +62,6 @@ export const ResultsPhase = ({
                   </div>
                 )}
                 <div className="space-y-2">
-                  <div className="text-lg font-semibold text-game-neutral mb-1">Votes:</div>
                   {playerVotes.map((vote, index) => (
                     <div key={index} className="flex items-center space-x-2 text-lg">
                       <span className="font-semibold text-game-neutral">{vote.voterName}:</span>
