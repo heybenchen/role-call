@@ -21,10 +21,11 @@ export const MatchingPhase = ({
   currentPlayer,
   onSubmit,
   submissions,
+  startTime,
 }: MatchingPhaseProps) => {
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(90);
+  const [secondsRemaining, setSecondsRemaining] = useState(90);
 
   const hasSubmitted = submissions[currentPlayer.id] !== undefined;
 
@@ -37,10 +38,29 @@ export const MatchingPhase = ({
   }, [hasSubmitted, matches, onSubmit]);
 
   useEffect(() => {
-    if (timeRemaining === 0 && !hasSubmitted) {
+    if (secondsRemaining === 0 && !hasSubmitted) {
       handleSubmit();
     }
-  }, [timeRemaining, hasSubmitted, handleSubmit]);
+  }, [secondsRemaining, hasSubmitted, handleSubmit]);
+
+  useEffect(() => {
+    const calculateRemainingTime = () => {
+      if (!startTime) return 90;
+      
+      const startTimeMs = new Date(startTime).getTime();
+      const currentTimeMs = new Date().getTime();
+      const elapsedSeconds = Math.floor((currentTimeMs - startTimeMs) / 1000);
+      return Math.max(0, 90 - elapsedSeconds);
+    };
+
+    const timer = setInterval(() => {
+      setSecondsRemaining(calculateRemainingTime());
+    }, 1000);
+
+    setSecondsRemaining(calculateRemainingTime());
+
+    return () => clearInterval(timer);
+  }, [startTime]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -108,7 +128,6 @@ export const MatchingPhase = ({
     );
   }
 
-  // Filter out players that have already been matched
   const unassignedPlayers = players.filter((player) => !Object.values(matches).includes(player.id));
 
   const remainingPlayerNames = players
@@ -123,7 +142,7 @@ export const MatchingPhase = ({
           <h2 className="text-xl font-bold text-game-primary">
             Match players to: "{currentPrompt.toLocaleLowerCase()}"
           </h2>
-          <p className="text-l font-bold text-game-neutral">{formatTime(timeRemaining)}</p>
+          <p className="text-l font-bold text-game-neutral">{formatTime(secondsRemaining)}</p>
           {hasSubmitted && (
             <p className="text-xl font-semibold text-game-neutral">
               Waiting for {remainingPlayerNames} to submit...
