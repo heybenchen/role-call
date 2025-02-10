@@ -57,10 +57,12 @@ const calculateResults = (
 const updateScores = (
   players: Player[],
   submissions: Record<string, Record<string, string>>,
-  results: Record<string, string>
+  results: Record<string, string>,
+  currentRound: number
 ): Player[] => {
   return players.map((player) => {
     const submission = submissions[player.id];
+
     if (!submission) return player;
 
     const roundPoints = Object.entries(submission).reduce((score, [option, playerId]) => {
@@ -68,7 +70,7 @@ const updateScores = (
     }, 0);
 
     const newPointsHistory = [...(player.pointsHistory || [])];
-    newPointsHistory[newPointsHistory.length] = roundPoints;
+    newPointsHistory[currentRound] = roundPoints;
 
     return {
       ...player,
@@ -86,7 +88,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       return {
         ...state,
-        players: [...state.players, { ...action.player, pointsHistory: action.player.pointsHistory || [] }],
+        players: [
+          ...state.players,
+          { ...action.player, pointsHistory: action.player.pointsHistory || [] },
+        ],
         totalRounds: state.players.length * 2,
       };
     case "START_GAME":
@@ -121,7 +126,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 
       if (allPlayersSubmitted) {
         const results = calculateResults(state.submissions, state.players);
-        const updatedPlayers = updateScores(state.players, state.submissions, results);
+        const updatedPlayers = updateScores(
+          state.players,
+          state.submissions,
+          results,
+          state.currentRound
+        );
 
         return {
           ...state,
@@ -380,8 +390,13 @@ export const useGame = () => {
 
   const nextRound = useCallback(async () => {
     dispatch({ type: "NEXT_ROUND" });
-    await updateLobbyState({ phase: "prompt", submissions: {}, results: undefined });
-  }, [updateLobbyState]);
+    await updateLobbyState({
+      phase: "prompt",
+      submissions: {},
+      results: undefined,
+      currentRound: state.currentRound + 1,
+    });
+  }, [state.currentRound, updateLobbyState]);
 
   const endGame = useCallback(async () => {
     dispatch({ type: "END_GAME" });
