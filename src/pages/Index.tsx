@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useGame } from "@/hooks/useGame";
 import { LobbyCreation } from "@/components/LobbyCreation";
@@ -115,7 +116,6 @@ const Index = () => {
           options={state.options}
           players={state.players}
           currentPlayer={currentPlayer!}
-          timeRemaining={state.timeRemaining}
           onSubmit={handleMatchSubmit}
           submissions={state.submissions}
         />
@@ -140,3 +140,4 @@ const Index = () => {
 };
 
 export default Index;
+
