@@ -1,36 +1,18 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { Copy } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface LobbyCreationProps {
   onJoin: (name: string) => void;
   lobbyCode: string;
-  playerId: string;
 }
 
-export const LobbyCreation = ({ onJoin, lobbyCode, playerId }: LobbyCreationProps) => {
+export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
   const [name, setName] = useState('');
-
-  useEffect(() => {
-    const fetchExistingName = async () => {
-      const { data } = await supabase
-        .from('players')
-        .select('name')
-        .eq('id', playerId)
-        .single();
-
-      if (data?.name) {
-        setName(data.name);
-      }
-    };
-
-    fetchExistingName();
-  }, [playerId]);
 
   const copyInviteLink = () => {
     const url = `${window.location.origin}/join/${lobbyCode}`;
