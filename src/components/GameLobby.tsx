@@ -1,8 +1,7 @@
-
-import { Player } from '@/types/game';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Users } from 'lucide-react';
+import { Player } from "@/types/game";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Users } from "lucide-react";
 
 interface GameLobbyProps {
   players: Player[];
@@ -17,7 +16,7 @@ export const GameLobby = ({ players, onStart, isHost }: GameLobbyProps) => {
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-bold text-game-neutral">Waiting for Players</h2>
           <p className="text-xl font-semibold text-game-primary">
-            {players.length} {players.length === 1 ? 'player' : 'players'} in lobby
+            {players.length} {players.length === 1 ? "player" : "players"} in lobby
           </p>
         </div>
 
@@ -38,7 +37,7 @@ export const GameLobby = ({ players, onStart, isHost }: GameLobbyProps) => {
                     <span className="font-bold text-lg text-game-neutral">{player.name}</span>
                   </div>
                   {player.isHost && (
-                    <span className="text-sm font-bold px-4 py-2 bg-game-primary text-white rounded-full shadow-lego-sm">
+                    <span className="text-sm font-bold px-4 py-1 bg-game-primary text-white rounded-full shadow-lego-sm">
                       Host
                     </span>
                   )}

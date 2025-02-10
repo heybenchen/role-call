@@ -46,7 +46,7 @@ export const MatchingPhase = ({
   useEffect(() => {
     const calculateRemainingTime = () => {
       if (!startTime) return 90;
-      
+
       const startTimeMs = new Date(startTime).getTime();
       const currentTimeMs = new Date().getTime();
       const elapsedSeconds = Math.floor((currentTimeMs - startTimeMs) / 1000);
@@ -186,7 +186,7 @@ export const MatchingPhase = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className="p-3 bg-[#F1F0FB] rounded-xl border-2 border-game-neutral shadow-lego-sm min-h-[60px]"
+                        className="p-2.5 bg-[#F1F0FB] rounded-xl border-2 border-game-neutral shadow-lego-sm"
                       >
                         <div className="font-semibold text-md text-game-neutral mb-2">{option}</div>
                         {matches[option] && (
