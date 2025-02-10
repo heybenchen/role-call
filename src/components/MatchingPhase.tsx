@@ -54,23 +54,46 @@ export const MatchingPhase = ({
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const { draggableId, destination } = result;
+    const { source, destination, draggableId } = result;
 
-    const alreadyAssignedOption = Object.entries(matches).find(
-      ([_, playerId]) => playerId === draggableId
-    );
-    if (alreadyAssignedOption) {
-      const [previousOption] = alreadyAssignedOption;
+    // If dragging from players list to a category
+    if (source.droppableId === "players-list") {
+      const alreadyAssignedOption = Object.entries(matches).find(
+        ([_, playerId]) => playerId === draggableId
+      );
+      if (alreadyAssignedOption) {
+        const [previousOption] = alreadyAssignedOption;
+        const updatedMatches = { ...matches };
+        delete updatedMatches[previousOption];
+
+        updatedMatches[destination.droppableId] = draggableId;
+        setMatches(updatedMatches);
+      } else {
+        setMatches((prev) => ({
+          ...prev,
+          [destination.droppableId]: draggableId,
+        }));
+      }
+    }
+    // If dragging from a category back to players list
+    else if (destination.droppableId === "players-list") {
       const updatedMatches = { ...matches };
-      delete updatedMatches[previousOption];
-
-      updatedMatches[destination.droppableId] = draggableId;
+      delete updatedMatches[source.droppableId];
       setMatches(updatedMatches);
-    } else {
+    }
+    // If dragging between categories
+    else {
       setMatches((prev) => ({
         ...prev,
         [destination.droppableId]: draggableId,
       }));
+      if (source.droppableId !== destination.droppableId) {
+        setMatches((prev) => {
+          const updated = { ...prev };
+          delete updated[source.droppableId];
+          return updated;
+        });
+      }
     }
   };
 
@@ -158,9 +181,18 @@ export const MatchingPhase = ({
                       >
                         <div className="font-medium mb-2">{option}</div>
                         {matches[option] && (
-                          <div className="p-2 bg-white rounded shadow">
-                            {players.find((p) => p.id === matches[option])?.name}
-                          </div>
+                          <Draggable draggableId={matches[option]} index={0}>
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="p-2 bg-white rounded shadow cursor-move"
+                              >
+                                {players.find((p) => p.id === matches[option])?.name}
+                              </div>
+                            )}
+                          </Draggable>
                         )}
                         {provided.placeholder}
                       </div>
