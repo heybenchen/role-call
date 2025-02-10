@@ -91,20 +91,21 @@ export const MatchingPhase = ({
     );
   }
 
-  const submittedPlayersCount = Object.keys(submissions).length;
-  const remainingPlayers = players.length - submittedPlayersCount;
+  const remainingPlayerNames = players
+    .filter((p) => !submissions[p.id])
+    .map((p) => p.name)
+    .join(", ");
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-4xl p-6 space-y-6">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-game-neutral">Match Players to {currentPrompt}</h2>
+          <h2 className="text-2xl font-bold text-game-neutral">
+            Match players to: "{currentPrompt.toLocaleLowerCase()}"
+          </h2>
           <p className="text-xl font-semibold text-game-primary">{formatTime(timer)}</p>
           {hasSubmitted && (
-            <p className="text-gray-600">
-              Waiting for {remainingPlayers} {remainingPlayers === 1 ? "player" : "players"} to
-              submit...
-            </p>
+            <p className="text-gray-600">Waiting for {remainingPlayerNames} to submit...</p>
           )}
         </div>
 
