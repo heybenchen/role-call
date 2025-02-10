@@ -55,6 +55,8 @@ export const MatchingPhase = ({
 
     const { source, destination, draggableId } = result;
 
+    if (source.droppableId === destination.droppableId) return;
+
     // If dragging from players list to a category
     if (source.droppableId === "players-list") {
       const alreadyAssignedOption = Object.entries(matches).find(
