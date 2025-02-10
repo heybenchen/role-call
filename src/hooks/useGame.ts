@@ -22,6 +22,7 @@ const initialState: GameState = {
   currentPrompt: "",
   options: [],
   ready_players: [],
+  round_start_time: null,
 };
 
 const calculateResults = (
@@ -120,6 +121,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         options: action.options,
         currentPrompt: action.prompt,
+        round_start_time: new Date().toISOString(),
       };
     case "SUBMIT_MATCHES":
       return {
@@ -147,6 +149,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           players: updatedPlayers,
           phase: "results",
           ready_players: [],
+          round_start_time: null,
         };
       }
 
@@ -155,6 +158,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         results: action.results,
         phase: "results",
         ready_players: [],
+        round_start_time: null,
+      };
+    case "SET_ROUND_START_TIME":
+      return {
+        ...state,
+        round_start_time: action.time,
       };
     case "MARK_PLAYER_READY":
       if (state.ready_players.includes(action.playerId)) {
@@ -176,6 +185,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         currentPrompt: "",
         options: [],
         ready_players: [],
+        round_start_time: null,
       };
     case "UPDATE_TIME":
       if (action.time === 0) {
@@ -183,6 +193,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           ...state,
           timeRemaining: action.time,
           phase: "results",
+          round_start_time: null,
         };
       }
       return {
@@ -388,6 +399,7 @@ export const useGame = () => {
 
   const setOptions = useCallback(
     async (prompt: string, options: string[]) => {
+      const round_start_time = new Date().toISOString();
       dispatch({ type: "SET_OPTIONS", prompt, options });
 
       await updateLobbyState({
@@ -395,6 +407,7 @@ export const useGame = () => {
         options,
         currentPrompt: prompt,
         timeRemaining: 90,
+        round_start_time,
       });
     },
     [updateLobbyState]
@@ -427,6 +440,7 @@ export const useGame = () => {
       promptPlayerId: state.players[(state.currentRound + 1) % state.players.length].id,
       currentPrompt: "",
       options: [],
+      round_start_time: null,
     });
   }, [state.currentRound, state.players, updateLobbyState]);
 
@@ -488,6 +502,34 @@ export const useGame = () => {
   const setLobbyCode = useCallback((lobbyCode: string) => {
     dispatch({ type: "SET_LOBBY_CODE", lobbyCode });
   }, []);
+
+  useEffect(() => {
+    if (state.phase === "matching" && state.round_start_time) {
+      const calculateTimeRemaining = () => {
+        const startTime = new Date(state.round_start_time!).getTime();
+        const currentTime = new Date().getTime();
+        const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+        const remainingTime = Math.max(0, 90 - elapsedSeconds);
+        return remainingTime;
+      };
+
+      const interval = setInterval(() => {
+        const remainingTime = calculateTimeRemaining();
+        dispatch({ type: "UPDATE_TIME", time: remainingTime });
+
+        // If time's up and current user is host, end the round
+        if (remainingTime === 0) {
+          const currentPlayer = state.players.find((p) => p.id === state.players[0]?.id);
+          if (currentPlayer?.isHost) {
+            dispatch({ type: "SET_RESULTS", results: {} });
+            updateLobbyState({ phase: "results" });
+          }
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [state.phase, state.round_start_time, state.players, updateLobbyState]);
 
   return {
     state,

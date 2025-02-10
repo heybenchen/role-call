@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,6 @@ export const MatchingPhase = ({
 }: MatchingPhaseProps) => {
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [timer, setTimer] = useState(timeRemaining);
 
   const hasSubmitted = submissions[currentPlayer.id] !== undefined;
 
@@ -38,17 +38,10 @@ export const MatchingPhase = ({
   }, [hasSubmitted, matches, onSubmit]);
 
   useEffect(() => {
-    if (timer === 0 && !hasSubmitted) {
+    if (timeRemaining === 0 && !hasSubmitted) {
       handleSubmit();
-      return;
     }
-
-    const interval = setInterval(() => {
-      setTimer((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timer, hasSubmitted, handleSubmit]);
+  }, [timeRemaining, hasSubmitted, handleSubmit]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -131,7 +124,7 @@ export const MatchingPhase = ({
           <h2 className="text-xl font-bold text-game-primary">
             Match players to: "{currentPrompt.toLocaleLowerCase()}"
           </h2>
-          <p className="text-l font-bold text-game-neutral">{formatTime(timer)}</p>
+          <p className="text-l font-bold text-game-neutral">{formatTime(timeRemaining)}</p>
           {hasSubmitted && (
             <p className="text-xl font-semibold text-game-neutral">
               Waiting for {remainingPlayerNames} to submit...
@@ -206,7 +199,7 @@ export const MatchingPhase = ({
           <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 mt-4"
+            className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
           >
             {isLoading ? "Submitting..." : "Submit Matches"}
           </Button>

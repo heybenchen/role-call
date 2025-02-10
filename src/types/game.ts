@@ -20,6 +20,7 @@ export type GameState = {
   phase: "lobby" | "prompt" | "matching" | "results" | "gameOver";
   promptPlayerId?: string;
   ready_players: string[];
+  round_start_time: string | null;
 };
 
 export type GameAction =
@@ -34,5 +35,6 @@ export type GameAction =
   | { type: "END_GAME" }
   | { type: "SET_LOBBY_CODE"; lobbyCode: string }
   | { type: "UPDATE_GAME_STATE"; state: Partial<GameState> }
-  | { type: "MARK_PLAYER_READY"; playerId: string };
+  | { type: "MARK_PLAYER_READY"; playerId: string }
+  | { type: "SET_ROUND_START_TIME"; time: string };
 
