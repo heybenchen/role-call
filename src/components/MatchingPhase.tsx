@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,11 @@ export const MatchingPhase = ({
       setIsLoading(false);
     }
   }, [hasSubmitted, matches, onSubmit]);
+
+  // Reset timer when timeRemaining prop changes
+  useEffect(() => {
+    setTimer(timeRemaining);
+  }, [timeRemaining]);
 
   useEffect(() => {
     if (timer === 0 && !hasSubmitted) {
@@ -217,3 +223,4 @@ export const MatchingPhase = ({
     </div>
   );
 };
+
