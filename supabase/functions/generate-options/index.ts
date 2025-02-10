@@ -29,12 +29,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
 
-            content: `You are a game assistant. When given a category, return exactly ${playerCount} unique items within that category. Provide only the items, separated by commas, with no additional text or formatting.`,
+            content: `You are a game assistant. When given a category, return exactly ${playerCount} unique items within that category. Prefer results that are a little funny. Provide only the items, separated by commas, with no additional text or formatting.`,
           },
           {
             role: "user",
