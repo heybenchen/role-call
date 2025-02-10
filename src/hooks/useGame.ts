@@ -22,10 +22,9 @@ const initialState: GameState = {
 };
 
 const calculateResults = (
-  submissions: Record<string, Record<string, string>>,
-  players: Player[]
-): Record<string, string> => {
-  const results: Record<string, string> = {};
+  submissions: Record<string, Record<string, string>>
+): Record<string, string | null> => {
+  const results: Record<string, string | null> = {};
   const optionCounts: Record<string, Record<string, number>> = {};
   const assignedPlayers = new Set<string>();
 
@@ -39,17 +38,25 @@ const calculateResults = (
   });
 
   Object.entries(optionCounts).forEach(([option, counts]) => {
-    const sortedPlayers = Object.entries(counts)
+    const sortedCounts = Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
-      .filter(([playerId]) => !assignedPlayers.has(playerId))
-      .map(([playerId]) => playerId);
+      .filter(([playerId]) => !assignedPlayers.has(playerId));
 
-    if (sortedPlayers.length > 0) {
-      const selectedPlayer = sortedPlayers[0];
-      results[option] = selectedPlayer;
-      assignedPlayers.add(selectedPlayer);
+    if (sortedCounts.length > 0) {
+      const highestCount = sortedCounts[0][1];
+      const hasTie = sortedCounts.length > 1 && sortedCounts[1][1] === highestCount;
+
+      if (hasTie) {
+        results[option] = null;
+      } else {
+        const selectedPlayer = sortedCounts[0][0];
+        results[option] = selectedPlayer;
+        assignedPlayers.add(selectedPlayer);
+      }
     }
   });
+
+  console.log("results", results);
 
   return results;
 };
@@ -57,7 +64,7 @@ const calculateResults = (
 const updateScores = (
   players: Player[],
   submissions: Record<string, Record<string, string>>,
-  results: Record<string, string>,
+  results: Record<string, string | null>,
   currentRound: number
 ): Player[] => {
   return players.map((player) => {
@@ -125,7 +132,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const allPlayersSubmitted = Object.keys(state.submissions).length === state.players.length;
 
       if (allPlayersSubmitted) {
-        const results = calculateResults(state.submissions, state.players);
+        const results = calculateResults(state.submissions);
         const updatedPlayers = updateScores(
           state.players,
           state.submissions,
@@ -395,8 +402,9 @@ export const useGame = () => {
       submissions: {},
       results: undefined,
       currentRound: state.currentRound + 1,
+      promptPlayerId: state.players[(state.currentRound + 1) % state.players.length].id,
     });
-  }, [state.currentRound, updateLobbyState]);
+  }, [state.currentRound, state.players, updateLobbyState]);
 
   const endGame = useCallback(async () => {
     dispatch({ type: "END_GAME" });
