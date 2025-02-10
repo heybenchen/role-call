@@ -17,7 +17,6 @@ const initialState: GameState = {
   currentRound: 0,
   totalRounds: 0,
   submissions: {},
-  timeRemaining: 90,
   phase: "lobby",
   currentPrompt: "",
   options: [],
@@ -193,14 +192,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       if (action.time === 0) {
         return {
           ...state,
-          timeRemaining: action.time,
           phase: "results",
         };
       }
-      return {
-        ...state,
-        timeRemaining: action.time,
-      };
+      return state;
     case "END_GAME":
       return {
         ...state,
@@ -407,7 +402,6 @@ export const useGame = () => {
         phase: "matching",
         options,
         currentPrompt: prompt,
-        timeRemaining: 90,
         round_start_time,
       });
     },
@@ -457,12 +451,11 @@ export const useGame = () => {
 
       await updateLobbyState({ ready_players: updatedReadyPlayers });
 
-      // If all players are ready, proceed to next round
       if (updatedReadyPlayers.length === state.players.length) {
         await nextRound();
       }
     },
-    [state.ready_players, state.players.length, updateLobbyState, nextRound]
+    [state.ready_players, state.players.length, nextRound, updateLobbyState]
   );
 
   useEffect(() => {
@@ -518,7 +511,6 @@ export const useGame = () => {
         const remainingTime = calculateTimeRemaining();
         dispatch({ type: "UPDATE_TIME", time: remainingTime });
 
-        // If time's up and current user is host, end the round
         if (remainingTime === 0) {
           const currentPlayer = state.players.find((p) => p.id === state.players[0]?.id);
           if (currentPlayer?.isHost) {

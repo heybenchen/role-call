@@ -10,7 +10,6 @@ interface MatchingPhaseProps {
   options: string[];
   players: Player[];
   currentPlayer: Player;
-  timeRemaining: number;
   onSubmit: (matches: Record<string, string>) => void;
   submissions: Record<string, Record<string, string>>;
 }
@@ -20,12 +19,12 @@ export const MatchingPhase = ({
   options,
   players,
   currentPlayer,
-  timeRemaining,
   onSubmit,
   submissions,
 }: MatchingPhaseProps) => {
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(90);
 
   const hasSubmitted = submissions[currentPlayer.id] !== undefined;
 
@@ -208,3 +207,4 @@ export const MatchingPhase = ({
     </div>
   );
 };
+

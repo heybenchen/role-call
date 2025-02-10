@@ -16,7 +16,6 @@ export type GameState = {
   options?: string[];
   submissions: Record<string, Record<string, string>>;
   results?: Record<string, string>;
-  timeRemaining: number;
   phase: "lobby" | "prompt" | "matching" | "results" | "gameOver";
   promptPlayerId?: string;
   ready_players: string[];
