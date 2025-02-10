@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ interface MatchingPhaseProps {
   currentPlayer: Player;
   onSubmit: (matches: Record<string, string>) => void;
   submissions: Record<string, Record<string, string>>;
+  startTime: string;
 }
 
 export const MatchingPhase = ({
@@ -207,4 +207,3 @@ export const MatchingPhase = ({
     </div>
   );
 };
-
