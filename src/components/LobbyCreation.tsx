@@ -1,10 +1,9 @@
-
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { toast } from '@/hooks/use-toast';
-import { Copy } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
+import { Copy } from "lucide-react";
 
 interface LobbyCreationProps {
   onJoin: (name: string) => void;
@@ -12,14 +11,14 @@ interface LobbyCreationProps {
 }
 
 export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
 
   const copyInviteLink = () => {
     const url = `${window.location.origin}/join/${lobbyCode}`;
     navigator.clipboard.writeText(url);
     toast({
-      title: 'Invite link copied!',
-      description: 'Share this link with your friends to join the game.',
+      title: "Invite link copied!",
+      description: "Share this link with your friends to join the game.",
     });
   };
 
@@ -27,8 +26,10 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
       <Card className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-game-neutral">Play Re:cast</h1>
-          <p className="text-xl font-semibold text-game-primary">Create or join a game to get started!</p>
+          <h1 className="text-4xl font-bold text-game-neutral">Play Role Models</h1>
+          <p className="text-xl font-semibold text-game-primary">
+            Create or join a game to get started!
+          </p>
         </div>
 
         <div className="space-y-6">
@@ -46,9 +47,7 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
           </div>
 
           <div className="space-y-3">
-            <label className="block text-lg font-bold text-game-neutral">
-              Lobby Code
-            </label>
+            <label className="block text-lg font-bold text-game-neutral">Lobby Code</label>
             <div className="flex items-center space-x-3">
               <div className="flex-1 px-4 py-3 bg-[#F1F0FB] rounded-lg shadow-lego-sm font-mono text-xl text-center font-bold text-game-secondary">
                 {lobbyCode}

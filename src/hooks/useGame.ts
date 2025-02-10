@@ -462,7 +462,7 @@ export const useGame = () => {
         await nextRound();
       }
     },
-    [state.ready_players, state.players.length, nextRound]
+    [state.ready_players, state.players.length, updateLobbyState, nextRound]
   );
 
   useEffect(() => {
