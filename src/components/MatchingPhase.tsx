@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,11 @@ export const MatchingPhase = ({
     );
   }
 
+  // Filter out players that have already been matched
+  const unassignedPlayers = players.filter(
+    (player) => !Object.values(matches).includes(player.id)
+  );
+
   const submittedPlayersCount = Object.keys(submissions).length;
   const remainingPlayers = players.length - submittedPlayersCount;
 
@@ -115,8 +121,12 @@ export const MatchingPhase = ({
                 <h3 className="font-semibold text-lg">Players</h3>
                 <Droppable droppableId="players-list">
                   {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
-                      {players.map((player, index) => (
+                    <div 
+                      ref={provided.innerRef} 
+                      {...provided.droppableProps} 
+                      className="space-y-2 min-h-[100px] p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+                    >
+                      {unassignedPlayers.map((player, index) => (
                         <Draggable key={player.id} draggableId={player.id} index={index}>
                           {(provided) => (
                             <div
