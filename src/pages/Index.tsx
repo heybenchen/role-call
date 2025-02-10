@@ -136,6 +136,7 @@ const Index = () => {
           players={state.players}
           onNextRound={handleNextRound}
           isHost={isHost}
+          submissions={state.submissions}
         />
       )}
     </div>
