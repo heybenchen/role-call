@@ -403,6 +403,8 @@ export const useGame = () => {
       results: undefined,
       currentRound: state.currentRound + 1,
       promptPlayerId: state.players[(state.currentRound + 1) % state.players.length].id,
+      currentPrompt: undefined,
+      options: undefined,
     });
   }, [state.currentRound, state.players, updateLobbyState]);
 

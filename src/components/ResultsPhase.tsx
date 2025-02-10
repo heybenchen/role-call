@@ -1,7 +1,6 @@
-
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Player } from '@/types/game';
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Player } from "@/types/game";
 
 interface ResultsPhaseProps {
   prompt: string;
@@ -33,27 +32,27 @@ export const ResultsPhase = ({
         <div className="space-y-4">
           {options.map((option) => {
             const matchedPlayerId = results[option];
-            const matchedPlayer = players.find(p => p.id === matchedPlayerId);
-            const playerVotes = players.map(player => {
+            const matchedPlayer = players.find((p) => p.id === matchedPlayerId);
+            const playerVotes = players.map((player) => {
               const playerSubmission = submissions[player.id];
               const votedForPlayerId = playerSubmission?.[option];
-              const votedForPlayer = players.find(p => p.id === votedForPlayerId);
+              const votedForPlayer = players.find((p) => p.id === votedForPlayerId);
               return {
                 voterName: player.name,
-                votedForName: votedForPlayer?.name || 'No vote'
+                votedForName: votedForPlayer?.name || "No vote",
               };
             });
-            
+
             return (
               <div key={option} className="p-4 bg-gray-50 rounded-lg space-y-2">
                 <div className="font-medium text-lg">{option}</div>
                 {matchedPlayer && (
                   <div className="text-game-primary font-semibold mb-2">
-                    Matched with: {matchedPlayer.name}
+                    Winner: {matchedPlayer.name}
                   </div>
                 )}
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-gray-600 mb-1">Player Votes:</div>
+                  <div className="text-sm font-medium text-gray-600 mb-1">Votes:</div>
                   {playerVotes.map((vote, index) => (
                     <div key={index} className="text-sm flex items-center space-x-2">
                       <span className="font-medium">{vote.voterName}:</span>
@@ -73,9 +72,7 @@ export const ResultsPhase = ({
               <div key={player.id} className="p-4 bg-white rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium text-lg">{player.name}</span>
-                  <span className="font-bold text-game-primary text-lg">
-                    Total: {player.score}
-                  </span>
+                  <span className="font-bold text-game-primary text-lg">Total: {player.score}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {player.pointsHistory.map((points, index) => (
