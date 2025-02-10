@@ -131,7 +131,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           [action.playerId]: action.matches,
         },
       };
-    case "SET_RESULTS":
+    case "SET_RESULTS": {
       const allPlayersSubmitted = Object.keys(state.submissions).length === state.players.length;
 
       if (allPlayersSubmitted) {
@@ -160,6 +160,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ready_players: [],
         round_start_time: null,
       };
+    }
     case "SET_ROUND_START_TIME":
       return {
         ...state,
@@ -173,7 +174,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         ready_players: [...state.ready_players, action.playerId],
       };
-    case "NEXT_ROUND":
+    case "NEXT_ROUND": {
       const nextPlayerIndex = (state.currentRound + 1) % state.players.length;
       return {
         ...state,
@@ -187,13 +188,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ready_players: [],
         round_start_time: null,
       };
+    }
     case "UPDATE_TIME":
       if (action.time === 0) {
         return {
           ...state,
           timeRemaining: action.time,
           phase: "results",
-          round_start_time: null,
         };
       }
       return {
@@ -453,7 +454,7 @@ export const useGame = () => {
     async (playerId: string) => {
       dispatch({ type: "MARK_PLAYER_READY", playerId });
       const updatedReadyPlayers = [...state.ready_players, playerId];
-      
+
       await updateLobbyState({ ready_players: updatedReadyPlayers });
 
       // If all players are ready, proceed to next round
