@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/game";
@@ -88,11 +89,11 @@ export const ResultsPhase = ({
                   </div>
                   <span className="text-xl font-bold text-game-primary">Total: {player.score}</span>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {player.pointsHistory.map((points, index) => (
                     <div
                       key={index}
-                      className="px-4 py-2 bg-white rounded-full text-lg font-semibold text-game-neutral shadow-lego-sm"
+                      className="px-2 py-1 bg-white rounded-full text-sm font-semibold text-game-neutral shadow-lego-sm"
                     >
                       R{index + 1}: {points}
                     </div>
