@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useGame } from "@/hooks/useGame";
 import { LobbyCreation } from "@/components/LobbyCreation";
@@ -83,7 +82,9 @@ const Index = () => {
             <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral transform transition-transform hover:-translate-y-1">
               <div className="text-center space-y-4">
                 <h1 className="text-4xl font-bold text-game-primary">Re:cast</h1>
-                <p className="text-xl font-semibold text-game-neutral">Build your story, brick by brick!</p>
+                <p className="text-xl font-semibold text-game-neutral">
+                  Typecast your friends. Predict the crowd.
+                </p>
               </div>
               <Button
                 className="w-full h-14 text-xl font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1"
