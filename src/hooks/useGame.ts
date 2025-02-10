@@ -21,6 +21,7 @@ const initialState: GameState = {
   phase: "lobby",
   currentPrompt: "",
   options: [],
+  ready_players: [],
 };
 
 const calculateResults = (
@@ -90,8 +91,6 @@ const updateScores = (
 };
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
-  // console.log("action", action.type);
-
   switch (action.type) {
     case "JOIN_GAME":
       if (state.players.find((p) => p.id === action.player.id)) {
@@ -121,10 +120,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         options: action.options,
         currentPrompt: action.prompt,
-        // phase: "matching",
-        // timeRemaining: 90,
       };
-    case "SUBMIT_MATCHES": {
+    case "SUBMIT_MATCHES":
       return {
         ...state,
         submissions: {
@@ -132,8 +129,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           [action.playerId]: action.matches,
         },
       };
-    }
-    case "SET_RESULTS": {
+    case "SET_RESULTS":
       const allPlayersSubmitted = Object.keys(state.submissions).length === state.players.length;
 
       if (allPlayersSubmitted) {
@@ -150,6 +146,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           results,
           players: updatedPlayers,
           phase: "results",
+          ready_players: [],
         };
       }
 
@@ -157,9 +154,17 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         results: action.results,
         phase: "results",
+        ready_players: [],
       };
-    }
-    case "NEXT_ROUND": {
+    case "MARK_PLAYER_READY":
+      if (state.ready_players.includes(action.playerId)) {
+        return state;
+      }
+      return {
+        ...state,
+        ready_players: [...state.ready_players, action.playerId],
+      };
+    case "NEXT_ROUND":
       const nextPlayerIndex = (state.currentRound + 1) % state.players.length;
       return {
         ...state,
@@ -170,8 +175,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         results: {},
         currentPrompt: "",
         options: [],
+        ready_players: [],
       };
-    }
     case "UPDATE_TIME":
       if (action.time === 0) {
         return {
@@ -430,6 +435,21 @@ export const useGame = () => {
     await updateLobbyState({ phase: "gameOver" });
   }, [updateLobbyState]);
 
+  const markPlayerReady = useCallback(
+    async (playerId: string) => {
+      dispatch({ type: "MARK_PLAYER_READY", playerId });
+      const updatedReadyPlayers = [...state.ready_players, playerId];
+      
+      await updateLobbyState({ ready_players: updatedReadyPlayers });
+
+      // If all players are ready, proceed to next round
+      if (updatedReadyPlayers.length === state.players.length) {
+        await nextRound();
+      }
+    },
+    [state.ready_players, state.players.length, nextRound]
+  );
+
   useEffect(() => {
     if (!state.lobbyCode) return;
 
@@ -483,6 +503,7 @@ export const useGame = () => {
       updateTime,
       endGame,
       setLobbyCode,
+      markPlayerReady,
     },
   };
 };
