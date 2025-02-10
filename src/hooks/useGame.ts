@@ -364,8 +364,12 @@ export const useGame = () => {
 
   const startGame = useCallback(async () => {
     dispatch({ type: "START_GAME" });
-    const randomIndex = Math.floor(Math.random() * state.players.length);
-    await updateLobbyState({ phase: "prompt", promptPlayerId: state.players[randomIndex].id });
+    const shuffledPlayers = state.players.sort(() => Math.random() - 0.5);
+    await updateLobbyState({
+      phase: "prompt",
+      players: shuffledPlayers,
+      promptPlayerId: shuffledPlayers[0].id,
+    });
   }, [state.players, updateLobbyState]);
 
   const setPrompt = useCallback(
