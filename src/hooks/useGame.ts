@@ -19,6 +19,8 @@ const initialState: GameState = {
   submissions: {},
   timeRemaining: 90,
   phase: "lobby",
+  currentPrompt: "",
+  options: [],
 };
 
 const calculateResults = (
@@ -88,6 +90,8 @@ const updateScores = (
 };
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
+  // console.log("action", action.type);
+
   switch (action.type) {
     case "JOIN_GAME":
       if (state.players.find((p) => p.id === action.player.id)) {
@@ -111,13 +115,14 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         currentPrompt: action.prompt,
-        phase: "matching",
-        timeRemaining: 90,
       };
     case "SET_OPTIONS":
       return {
         ...state,
         options: action.options,
+        currentPrompt: action.prompt,
+        // phase: "matching",
+        // timeRemaining: 90,
       };
     case "SUBMIT_MATCHES": {
       return {
@@ -162,9 +167,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         phase: state.currentRound + 1 >= state.totalRounds ? "gameOver" : "prompt",
         promptPlayerId: state.players[nextPlayerIndex]?.id,
         submissions: {},
-        results: undefined,
-        currentPrompt: undefined,
-        options: undefined,
+        results: {},
+        currentPrompt: "",
+        options: [],
       };
     }
     case "UPDATE_TIME":
@@ -364,16 +369,23 @@ export const useGame = () => {
 
   const setPrompt = useCallback(
     async (prompt: string) => {
+      console.log("prompt", prompt);
       dispatch({ type: "SET_PROMPT", prompt });
-      await updateLobbyState({ phase: "matching", currentPrompt: prompt });
+      await updateLobbyState({ currentPrompt: prompt });
     },
     [updateLobbyState]
   );
 
   const setOptions = useCallback(
-    async (options: string[]) => {
-      dispatch({ type: "SET_OPTIONS", options });
-      await updateLobbyState({ phase: "matching", options, timeRemaining: 90 });
+    async (prompt: string, options: string[]) => {
+      dispatch({ type: "SET_OPTIONS", prompt, options });
+
+      await updateLobbyState({
+        phase: "matching",
+        options,
+        currentPrompt: prompt,
+        timeRemaining: 90,
+      });
     },
     [updateLobbyState]
   );
@@ -400,11 +412,11 @@ export const useGame = () => {
     await updateLobbyState({
       phase: "prompt",
       submissions: {},
-      results: undefined,
+      results: {},
       currentRound: state.currentRound + 1,
       promptPlayerId: state.players[(state.currentRound + 1) % state.players.length].id,
-      currentPrompt: undefined,
-      options: undefined,
+      currentPrompt: "",
+      options: [],
     });
   }, [state.currentRound, state.players, updateLobbyState]);
 

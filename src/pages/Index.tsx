@@ -1,15 +1,14 @@
-
-import { useEffect, useState } from 'react';
-import { useGame } from '@/hooks/useGame';
-import { LobbyCreation } from '@/components/LobbyCreation';
-import { GameLobby } from '@/components/GameLobby';
-import { PromptPhase } from '@/components/PromptPhase';
-import { MatchingPhase } from '@/components/MatchingPhase';
-import { ResultsPhase } from '@/components/ResultsPhase';
-import { useToast } from '@/hooks/use-toast';
-import { v4 as uuidv4 } from 'uuid';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import { useGame } from "@/hooks/useGame";
+import { LobbyCreation } from "@/components/LobbyCreation";
+import { GameLobby } from "@/components/GameLobby";
+import { PromptPhase } from "@/components/PromptPhase";
+import { MatchingPhase } from "@/components/MatchingPhase";
+import { ResultsPhase } from "@/components/ResultsPhase";
+import { useToast } from "@/hooks/use-toast";
+import { v4 as uuidv4 } from "uuid";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { state, actions } = useGame();
@@ -38,9 +37,9 @@ const Index = () => {
   const handleStart = () => {
     if (state.players.length < 2) {
       toast({
-        title: 'Not enough players',
-        description: 'You need at least 2 players to start the game',
-        variant: 'destructive',
+        title: "Not enough players",
+        description: "You need at least 2 players to start the game",
+        variant: "destructive",
       });
       return;
     }
@@ -55,8 +54,7 @@ const Index = () => {
   };
 
   const handlePromptSubmit = (prompt: string, options: string[]) => {
-    actions.setPrompt(prompt);
-    actions.setOptions(options);
+    actions.setOptions(prompt, options);
   };
 
   const handleMatchSubmit = (matches: Record<string, string>) => {
@@ -67,20 +65,18 @@ const Index = () => {
     actions.nextRound();
   };
 
-  const currentPlayer = state.players.find(p => p.id === playerId);
+  const currentPlayer = state.players.find((p) => p.id === playerId);
   const isHost = currentPlayer?.isHost ?? false;
-  const isJoiningGame = location.pathname.includes('/join/');
-  const promptPlayer = state.players.find(p => p.id === state.promptPlayerId);
+  const isJoiningGame = location.pathname.includes("/join/");
+  const promptPlayer = state.players.find((p) => p.id === state.promptPlayerId);
   const isPlayerTurn = playerId === state.promptPlayerId;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {state.phase === 'lobby' && !state.players.find(p => p.id === playerId) && (
-        isJoiningGame ? (
-          <LobbyCreation
-            onJoin={handleJoin}
-            lobbyCode={lobbyCode || state.lobbyCode}
-          />
+      {state.phase === "lobby" &&
+        !state.players.find((p) => p.id === playerId) &&
+        (isJoiningGame ? (
+          <LobbyCreation onJoin={handleJoin} lobbyCode={lobbyCode || state.lobbyCode} />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
             <div className="w-full max-w-md p-6 space-y-6 backdrop-blur-sm bg-white/80 rounded-lg shadow-lg">
@@ -96,18 +92,13 @@ const Index = () => {
               </Button>
             </div>
           </div>
-        )
-      )}
-      
-      {state.phase === 'lobby' && state.players.find(p => p.id === playerId) && (
-        <GameLobby
-          players={state.players}
-          onStart={handleStart}
-          isHost={isHost}
-        />
+        ))}
+
+      {state.phase === "lobby" && state.players.find((p) => p.id === playerId) && (
+        <GameLobby players={state.players} onStart={handleStart} isHost={isHost} />
       )}
 
-      {state.phase === 'prompt' && promptPlayer && (
+      {state.phase === "prompt" && promptPlayer && (
         <PromptPhase
           currentPlayer={promptPlayer}
           onPromptSubmit={handlePromptSubmit}
@@ -116,7 +107,7 @@ const Index = () => {
         />
       )}
 
-      {state.phase === 'matching' && promptPlayer && state.currentPrompt && state.options && (
+      {state.phase === "matching" && promptPlayer && state.currentPrompt && state.options && (
         <MatchingPhase
           currentPrompt={state.currentPrompt}
           options={state.options}
@@ -128,7 +119,7 @@ const Index = () => {
         />
       )}
 
-      {state.phase === 'results' && state.currentPrompt && state.options && state.results && (
+      {state.phase === "results" && state.currentPrompt && state.options && state.results && (
         <ResultsPhase
           prompt={state.currentPrompt}
           options={state.options}
