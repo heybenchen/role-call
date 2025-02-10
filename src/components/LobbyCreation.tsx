@@ -24,16 +24,16 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
-      <Card className="w-full max-w-md p-6 space-y-6 backdrop-blur-sm bg-white/80">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
+      <Card className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-game-neutral">Play Re:cast</h1>
-          <p className="text-gray-600">Create or join a game to get started!</p>
+          <h1 className="text-4xl font-bold text-game-neutral">Play Re:cast</h1>
+          <p className="text-xl font-semibold text-game-primary">Create or join a game to get started!</p>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <label htmlFor="name" className="block text-lg font-bold text-game-neutral">
               Your Name
             </label>
             <Input
@@ -41,31 +41,31 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter your name"
-              className="w-full"
+              className="h-12 text-lg border-2 border-game-neutral rounded-lg shadow-lego-sm focus:ring-2 focus:ring-game-primary"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="space-y-3">
+            <label className="block text-lg font-bold text-game-neutral">
               Lobby Code
             </label>
-            <div className="flex items-center space-x-2">
-              <div className="flex-1 px-4 py-2 bg-gray-100 rounded-md font-mono text-lg text-center">
+            <div className="flex items-center space-x-3">
+              <div className="flex-1 px-4 py-3 bg-[#F1F0FB] rounded-lg shadow-lego-sm font-mono text-xl text-center font-bold text-game-secondary">
                 {lobbyCode}
               </div>
               <Button
                 variant="outline"
                 size="icon"
                 onClick={copyInviteLink}
-                className="hover:bg-gray-100"
+                className="h-12 w-12 border-2 border-game-neutral hover:bg-[#F1F0FB] shadow-lego-sm"
               >
-                <Copy className="h-4 w-4" />
+                <Copy className="h-5 w-5" />
               </Button>
             </div>
           </div>
 
           <Button
-            className="w-full bg-game-primary hover:bg-game-primary/90 text-white"
+            className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
             onClick={() => name && onJoin(name)}
             disabled={!name}
           >

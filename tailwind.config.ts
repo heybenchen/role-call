@@ -26,10 +26,10 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         game: {
-          primary: "#FF6B6B",
-          secondary: "#4ECDC4",
-          accent: "#45B7D1",
-          neutral: "#2C3E50",
+          primary: "#F97316", // Bright Orange
+          secondary: "#0EA5E9", // Ocean Blue
+          accent: "#D946EF", // Magenta Pink
+          neutral: "#403E43", // Charcoal Gray
           success: "#2ECC71",
           warning: "#F1C40F",
           error: "#E74C3C",
@@ -86,6 +86,10 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         float: "float 3s ease-in-out infinite",
         shimmer: "shimmer 2s infinite linear",
+      },
+      boxShadow: {
+        'lego': '0 8px 0 0 rgba(0, 0, 0, 0.2)',
+        'lego-sm': '0 4px 0 0 rgba(0, 0, 0, 0.2)',
       },
     },
   },
