@@ -26,9 +26,9 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         game: {
-          primary: "#FF6B6B",
-          secondary: "#4ECDC4",
-          accent: "#45B7D1",
+          primary: "#9b87f5",
+          secondary: "#F97316",
+          accent: "#8B5CF6",
           neutral: "#2C3E50",
           success: "#2ECC71",
           warning: "#F1C40F",

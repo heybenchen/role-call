@@ -73,20 +73,22 @@ const Index = () => {
   const isPlayerTurn = playerId === state.promptPlayerId;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#9b87f5] via-[#8B5CF6] to-[#7E69AB]">
       {state.phase === "lobby" &&
         !state.players.find((p) => p.id === playerId) &&
         (isJoiningGame ? (
           <LobbyCreation onJoin={handleJoin} lobbyCode={lobbyCode || state.lobbyCode} />
         ) : (
-          <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-game-primary/10 to-game-secondary/10">
-            <div className="w-full max-w-md p-6 space-y-6 backdrop-blur-sm bg-white/80 rounded-lg shadow-lg">
-              <div className="text-center space-y-2">
-                <h1 className="text-3xl font-bold text-game-neutral">Re:cast</h1>
-                <p className="text-gray-600">Create a new game to get started!</p>
+          <div className="flex flex-col items-center justify-center min-h-screen p-4">
+            <div className="w-full max-w-md p-8 space-y-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl">
+              <div className="text-center space-y-3">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#F97316] bg-clip-text text-transparent">
+                  Re:cast
+                </h1>
+                <p className="text-gray-600">Join the game and connect with friends!</p>
               </div>
               <Button
-                className="w-full bg-game-primary hover:bg-game-primary/90 text-white"
+                className="w-full bg-gradient-to-r from-[#9b87f5] to-[#F97316] hover:opacity-90 text-white font-medium py-3"
                 onClick={handleCreateGame}
               >
                 Create Game
