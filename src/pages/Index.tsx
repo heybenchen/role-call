@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useGame } from "@/hooks/useGame";
 import { LobbyCreation } from "@/components/LobbyCreation";
@@ -140,3 +141,4 @@ const Index = () => {
 };
 
 export default Index;
+
