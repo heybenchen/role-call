@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useGame } from "@/hooks/useGame";
 import { LobbyCreation } from "@/components/LobbyCreation";
@@ -6,24 +7,19 @@ import { PromptPhase } from "@/components/PromptPhase";
 import { MatchingPhase } from "@/components/MatchingPhase";
 import { ResultsPhase } from "@/components/ResultsPhase";
 import { useToast } from "@/hooks/use-toast";
+import useSound from "@/hooks/useSound";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { state, actions } = useGame();
-  const [playerId, setPlayerId] = useState<string>(() => {
-    const storedId = sessionStorage.getItem("playerId");
-    return storedId || uuidv4();
-  });
+  const [playerId] = useState(uuidv4());
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { lobbyCode } = useParams();
-
-  useEffect(() => {
-    sessionStorage.setItem("playerId", playerId);
-  }, [playerId]);
+  const { playJoinSound, playSubmitSound, playReadySound, playEndRoundSound } = useSound();
 
   useEffect(() => {
     if (lobbyCode) {
@@ -32,8 +28,6 @@ const Index = () => {
   }, [lobbyCode, actions]);
 
   const handleJoin = async (name: string) => {
-    sessionStorage.setItem("playerName", name);
-
     await actions.joinGame({
       id: playerId,
       name,
@@ -41,6 +35,7 @@ const Index = () => {
       isHost: state.players.length === 0,
       pointsHistory: [],
     });
+    playJoinSound();
   };
 
   const handleStart = () => {
@@ -53,6 +48,7 @@ const Index = () => {
       return;
     }
     actions.startGame();
+    playEndRoundSound();
   };
 
   const handleCreateGame = async () => {
@@ -64,14 +60,17 @@ const Index = () => {
 
   const handlePromptSubmit = (prompt: string, options: string[]) => {
     actions.setOptions(prompt, options);
+    playEndRoundSound();
   };
 
   const handleMatchSubmit = (matches: Record<string, string>) => {
     actions.submitMatches(playerId, matches);
+    playSubmitSound();
   };
 
   const handlePlayerReady = (playerId: string) => {
     actions.markPlayerReady(playerId);
+    playReadySound();
   };
 
   const currentPlayer = state.players.find((p) => p.id === playerId);
@@ -90,11 +89,9 @@ const Index = () => {
           <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
             <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral transform transition-transform hover:-translate-y-1">
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-game-primary">Role Call</h1>
+                <h1 className="text-4xl font-bold text-game-primary">Role Models</h1>
                 <p className="text-xl font-semibold text-game-neutral">
-                  Typecast your friends.
-                  <br />
-                  Match the crowd.
+                  Typecast your friends. Match the crowd.
                 </p>
               </div>
               <Button
@@ -128,7 +125,7 @@ const Index = () => {
           currentPlayer={currentPlayer!}
           onSubmit={handleMatchSubmit}
           submissions={state.submissions}
-          startTime={state.round_start_time}
+          startTime={state.round_start_time!}
         />
       )}
 
@@ -151,3 +148,4 @@ const Index = () => {
 };
 
 export default Index;
+
