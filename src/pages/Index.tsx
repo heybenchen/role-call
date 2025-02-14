@@ -7,7 +7,6 @@ import { PromptPhase } from "@/components/PromptPhase";
 import { MatchingPhase } from "@/components/MatchingPhase";
 import { ResultsPhase } from "@/components/ResultsPhase";
 import { useToast } from "@/hooks/use-toast";
-import useSound from "@/hooks/useSound";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ const Index = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { lobbyCode } = useParams();
-  const { playJoinSound, playSubmitSound, playReadySound, playEndRoundSound } = useSound();
 
   useEffect(() => {
     if (lobbyCode) {
@@ -35,7 +33,6 @@ const Index = () => {
       isHost: state.players.length === 0,
       pointsHistory: [],
     });
-    playJoinSound();
   };
 
   const handleStart = () => {
@@ -48,7 +45,6 @@ const Index = () => {
       return;
     }
     actions.startGame();
-    playEndRoundSound();
   };
 
   const handleCreateGame = async () => {
@@ -60,17 +56,14 @@ const Index = () => {
 
   const handlePromptSubmit = (prompt: string, options: string[]) => {
     actions.setOptions(prompt, options);
-    playEndRoundSound();
   };
 
   const handleMatchSubmit = (matches: Record<string, string>) => {
     actions.submitMatches(playerId, matches);
-    playSubmitSound();
   };
 
   const handlePlayerReady = (playerId: string) => {
     actions.markPlayerReady(playerId);
-    playReadySound();
   };
 
   const currentPlayer = state.players.find((p) => p.id === playerId);
@@ -125,7 +118,7 @@ const Index = () => {
           currentPlayer={currentPlayer!}
           onSubmit={handleMatchSubmit}
           submissions={state.submissions}
-          startTime={state.round_start_time!}
+          startTime={state.round_start_time}
         />
       )}
 

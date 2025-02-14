@@ -46,7 +46,7 @@ export const MatchingPhase = ({
   useEffect(() => {
     const calculateRemainingTime = () => {
       if (!startTime) return 90;
-
+      
       const startTimeMs = new Date(startTime).getTime();
       const currentTimeMs = new Date().getTime();
       const elapsedSeconds = Math.floor((currentTimeMs - startTimeMs) / 1000);
@@ -133,11 +133,7 @@ export const MatchingPhase = ({
   const remainingPlayerNames = players
     .filter((p) => !submissions[p.id])
     .map((p) => p.name)
-    .reduce((acc, name, index, array) => {
-      if (index === 0) return name;
-      if (index === array.length - 1) return `${acc} and ${name}`;
-      return `${acc}, ${name}`;
-    }, "");
+    .join(", ");
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
@@ -190,7 +186,7 @@ export const MatchingPhase = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className="p-2.5 bg-[#F1F0FB] rounded-xl border-2 border-game-neutral shadow-lego-sm"
+                        className="p-3 bg-[#F1F0FB] rounded-xl border-2 border-game-neutral shadow-lego-sm min-h-[60px]"
                       >
                         <div className="font-semibold text-md text-game-neutral mb-2">{option}</div>
                         {matches[option] && (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -11,9 +11,7 @@ interface LobbyCreationProps {
 }
 
 export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
-  const [name, setName] = useState(() => {
-    return sessionStorage.getItem("playerName") || "";
-  });
+  const [name, setName] = useState("");
 
   const copyInviteLink = () => {
     const url = `${window.location.origin}/join/${lobbyCode}`;
@@ -28,8 +26,10 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
       <Card className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-game-neutral">Play Role Call</h1>
-          <p className="text-xl font-semibold text-game-primary">Join this game to get started!</p>
+          <h1 className="text-4xl font-bold text-game-neutral">Play Role Models</h1>
+          <p className="text-xl font-semibold text-game-primary">
+            Create or join a game to get started!
+          </p>
         </div>
 
         <div className="space-y-6">
@@ -68,7 +68,7 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
             onClick={() => name && onJoin(name)}
             disabled={!name}
           >
-            Enter Lobby
+            Join Game
           </Button>
         </div>
       </Card>

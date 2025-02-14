@@ -55,8 +55,8 @@ export const ResultsPhase = ({
 
             return (
               <div key={option} className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2">
-                <div className="flex items-center">
-                  <div className="text-lg font-bold text-game-neutral pr-1">{option}:</div>
+                <div className="flex justify-between items-center">
+                  <div className="text-lg font-bold text-game-neutral">{option}:</div>
                   {matchedPlayer ? (
                     <div className="text-lg font-semibold text-game-primary">
                       {matchedPlayer.name}
@@ -68,10 +68,8 @@ export const ResultsPhase = ({
 
                 <div className="space-y-1">
                   {playerVotes.map((vote, index) => (
-                    <div key={index} className="flex items-center space-x-1 text-sm">
-                      <span className="font-semibold text-game-neutral">
-                        {vote.voterName} voted for
-                      </span>
+                    <div key={index} className="flex items-center space-x-2 text-sm">
+                      <span className="font-semibold text-game-neutral">{vote.voterName}:</span>
                       <span className="text-game-secondary">{vote.votedForName}</span>
                     </div>
                   ))}
