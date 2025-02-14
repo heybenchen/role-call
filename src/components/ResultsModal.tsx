@@ -29,16 +29,16 @@ export const ResultsModal = ({
 }: ResultsModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4">
+      <DialogContent className="sm:max-w-xl animate-scale-in">
+        <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
           Category Result {currentIndex + 1} of {totalOptions}
         </DialogTitle>
 
-        <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2">
+        <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2 animate-fade-in">
           <div className="flex justify-between items-center">
             <div className="text-lg font-bold text-game-neutral">{option}:</div>
             {matchedPlayer ? (
-              <div className="text-lg font-semibold text-game-primary">
+              <div className="text-lg font-semibold text-game-primary animate-enter">
                 {matchedPlayer.name}
               </div>
             ) : (
@@ -48,7 +48,11 @@ export const ResultsModal = ({
 
           <div className="space-y-1">
             {playerVotes.map((vote, index) => (
-              <div key={index} className="flex items-center space-x-2 text-sm">
+              <div 
+                key={index} 
+                className="flex items-center space-x-2 text-sm animate-fade-in"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
                 <span className="font-semibold text-game-neutral">{vote.voterName}:</span>
                 <span className="text-game-secondary">{vote.votedForName}</span>
               </div>

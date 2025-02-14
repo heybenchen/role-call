@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/game";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Eye } from "lucide-react";
 import { useState } from "react";
 import { ResultsModal } from "./ResultsModal";
 
@@ -65,6 +65,16 @@ export const ResultsPhase = ({
         <div className="text-center space-y-4">
           <h2 className="text-3xl font-bold text-game-primary">Round Results</h2>
           <p className="text-xl font-semibold text-game-neutral">Category: {prompt}</p>
+          {!isResultsModalOpen && (
+            <Button
+              onClick={() => setIsResultsModalOpen(true)}
+              variant="outline"
+              className="mt-2 hover:scale-105 transition-transform"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View Results
+            </Button>
+          )}
         </div>
 
         <ResultsModal
@@ -79,16 +89,19 @@ export const ResultsPhase = ({
           onNext={handleNextOption}
         />
 
-        <div className="space-y-4">
+        <div className="space-y-4 animate-fade-in">
           <h3 className="text-xl font-bold text-game-primary text-center">Points History</h3>
           <div className="grid grid-cols-1 gap-4">
             {players.map((player) => (
-              <div key={player.id} className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm">
+              <div 
+                key={player.id} 
+                className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm hover:scale-[1.02] transition-transform"
+              >
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-md font-bold text-game-neutral">{player.name}</span>
                     {readyPlayers.includes(player.id) && (
-                      <CheckCircle2 className="h-6 w-6 text-game-success" />
+                      <CheckCircle2 className="h-6 w-6 text-game-success animate-scale-in" />
                     )}
                   </div>
                   <span className="text-md font-bold text-game-primary">Total: {player.score}</span>
@@ -97,7 +110,8 @@ export const ResultsPhase = ({
                   {player.pointsHistory.map((points, index) => (
                     <div
                       key={index}
-                      className="px-2.5 py-1 bg-white rounded-full font-semibold text-sm text-game-neutral border-2"
+                      className="px-2.5 py-1 bg-white rounded-full font-semibold text-sm text-game-neutral border-2 animate-fade-in"
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {points}
                     </div>
