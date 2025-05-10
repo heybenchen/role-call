@@ -23,9 +23,10 @@ export const MatchingPhase = ({
   submissions,
   startTime,
 }: MatchingPhaseProps) => {
+  const maxTime = players.length * 20;
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [secondsRemaining, setSecondsRemaining] = useState(90);
+  const [secondsRemaining, setSecondsRemaining] = useState(maxTime);
 
   const hasSubmitted = submissions[currentPlayer.id] !== undefined;
 
@@ -45,12 +46,12 @@ export const MatchingPhase = ({
 
   useEffect(() => {
     const calculateRemainingTime = () => {
-      if (!startTime) return 90;
+      if (!startTime) return maxTime;
       
       const startTimeMs = new Date(startTime).getTime();
       const currentTimeMs = new Date().getTime();
       const elapsedSeconds = Math.floor((currentTimeMs - startTimeMs) / 1000);
-      return Math.max(0, 90 - elapsedSeconds);
+      return Math.max(0, maxTime - elapsedSeconds);
     };
 
     const timer = setInterval(() => {
