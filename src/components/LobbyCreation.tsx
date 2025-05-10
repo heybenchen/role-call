@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -14,14 +13,6 @@ interface LobbyCreationProps {
 export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
   const [name, setName] = useState("");
 
-  useEffect(() => {
-    // Check for saved player name when component mounts
-    const savedName = localStorage.getItem("playerName");
-    if (savedName) {
-      setName(savedName);
-    }
-  }, []);
-
   const copyInviteLink = () => {
     const url = `${window.location.origin}/join/${lobbyCode}`;
     navigator.clipboard.writeText(url);
@@ -29,14 +20,6 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
       title: "Invite link copied!",
       description: "Share this link with your friends to join the game.",
     });
-  };
-
-  const handleJoin = () => {
-    if (name) {
-      // Save player name to localStorage
-      localStorage.setItem("playerName", name);
-      onJoin(name);
-    }
   };
 
   return (
@@ -82,7 +65,7 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
 
           <Button
             className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
-            onClick={handleJoin}
+            onClick={() => name && onJoin(name)}
             disabled={!name}
           >
             Join Game

@@ -13,35 +13,11 @@ import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { state, actions } = useGame();
-  const [playerId, setPlayerId] = useState<string>("");
+  const [playerId] = useState(uuidv4());
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { lobbyCode } = useParams();
-
-  // Initialize player ID from localStorage or generate new one
-  useEffect(() => {
-    const savedPlayerId = localStorage.getItem("playerId");
-    if (savedPlayerId) {
-      setPlayerId(savedPlayerId);
-    } else {
-      const newId = uuidv4();
-      setPlayerId(newId);
-      localStorage.setItem("playerId", newId);
-    }
-  }, []);
-
-  // Auto-reconnect player to game
-  useEffect(() => {
-    if (lobbyCode && playerId && state.lobbyCode === lobbyCode) {
-      const savedName = localStorage.getItem("playerName");
-      const playerInGame = state.players.find(p => p.id === playerId);
-      
-      if (savedName && !playerInGame && state.phase === "lobby") {
-        handleJoin(savedName);
-      }
-    }
-  }, [lobbyCode, playerId, state.lobbyCode, state.players, state.phase]);
 
   useEffect(() => {
     if (lobbyCode) {
@@ -165,3 +141,4 @@ const Index = () => {
 };
 
 export default Index;
+
