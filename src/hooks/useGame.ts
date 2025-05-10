@@ -504,7 +504,7 @@ export const useGame = () => {
         const currentTime = new Date().getTime();
         const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
         const maxTime = state.players.length * 20;
-        const remainingTime = Math.max(0, 90 - elapsedSeconds);
+        const remainingTime = Math.max(0, maxTime - elapsedSeconds);
         return remainingTime;
       };
 
