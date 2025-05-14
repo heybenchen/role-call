@@ -131,13 +131,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         },
       };
     case "SET_RESULTS": {
-      const allPlayersSubmitted = Object.keys(state.submissions).length === state.players.length;
+      const allPlayersSubmitted = Object.keys(action.submissions).length === state.players.length;
 
       if (allPlayersSubmitted) {
-        const results = calculateResults(state.submissions);
+        const results = calculateResults(action.submissions);
         const updatedPlayers = updateScores(
           state.players,
-          state.submissions,
+          action.submissions,
           results,
           state.currentRound
         );
@@ -145,6 +145,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         return {
           ...state,
           results,
+          submissions: action.submissions,
           players: updatedPlayers,
           phase: "results",
           ready_players: [],
@@ -155,6 +156,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         results: action.results,
+        submissions: action.submissions,
         phase: "results",
         ready_players: [],
         round_start_time: null,
@@ -241,7 +243,7 @@ export const useGame = () => {
           pointsHistory: player.pointsHistory || [],
         };
 
-        const { data: lobbyData, error: lobbyError } = await supabase
+        const { data, error: lobbyError } = await supabase
           .from("lobbies")
           .upsert({
             code: state.lobbyCode,
@@ -327,14 +329,22 @@ export const useGame = () => {
       });
 
       if (data.state && typeof data.state === "object") {
-        const state = data.state as GameState;
+        const dataState = data.state as GameState;
+        if (state.phase !== dataState.phase) {
+          dispatch({ type: "UPDATE_GAME_STATE", state: dataState });
+        }
+
         if (
-          state.phase === "matching" &&
-          state.submissions &&
-          state.players &&
-          Object.keys(state.submissions).length === state.players.length
+          dataState.phase === "matching" &&
+          dataState.submissions &&
+          dataState.players &&
+          Object.keys(dataState.submissions).length === dataState.players.length
         ) {
-          dispatch({ type: "SET_RESULTS", results: state.results });
+          dispatch({
+            type: "SET_RESULTS",
+            results: dataState.results,
+            submissions: dataState.submissions,
+          });
         }
       }
     } catch (error) {
@@ -515,7 +525,11 @@ export const useGame = () => {
         if (remainingTime === 0) {
           const currentPlayer = state.players.find((p) => p.id === state.players[0]?.id);
           if (currentPlayer?.isHost) {
-            dispatch({ type: "SET_RESULTS", results: state.results });
+            dispatch({
+              type: "SET_RESULTS",
+              results: state.results,
+              submissions: state.submissions,
+            });
             updateLobbyState({ phase: "results" });
           }
         }
@@ -523,7 +537,14 @@ export const useGame = () => {
 
       return () => clearInterval(interval);
     }
-  }, [state.phase, state.round_start_time, state.players, updateLobbyState, state.results]);
+  }, [
+    state.phase,
+    state.round_start_time,
+    state.players,
+    updateLobbyState,
+    state.results,
+    state.submissions,
+  ]);
 
   return {
     state,

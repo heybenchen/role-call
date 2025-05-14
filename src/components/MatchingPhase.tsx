@@ -47,7 +47,7 @@ export const MatchingPhase = ({
   useEffect(() => {
     const calculateRemainingTime = () => {
       if (!startTime) return maxTime;
-      
+
       const startTimeMs = new Date(startTime).getTime();
       const currentTimeMs = new Date().getTime();
       const elapsedSeconds = Math.floor((currentTimeMs - startTimeMs) / 1000);
@@ -217,7 +217,7 @@ export const MatchingPhase = ({
         {!hasSubmitted && (
           <Button
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isLoading || Object.values(matches).length === 0}
             className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"
           >
             {isLoading ? "Submitting..." : "Submit Matches"}

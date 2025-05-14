@@ -32,7 +32,7 @@ export const ResultsModal = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl animate-scale-in">
         <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
-          Category Result {currentIndex + 1} of {totalOptions}
+          Category {currentIndex + 1} of {totalOptions}
         </DialogTitle>
 
         <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2 animate-fade-in">

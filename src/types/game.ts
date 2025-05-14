@@ -1,4 +1,3 @@
-
 export type Player = {
   id: string;
   name: string;
@@ -28,7 +27,11 @@ export type GameAction =
   | { type: "SET_PROMPT"; prompt: string }
   | { type: "SET_OPTIONS"; options: string[]; prompt: string }
   | { type: "SUBMIT_MATCHES"; playerId: string; matches: Record<string, string> }
-  | { type: "SET_RESULTS"; results: Record<string, string> }
+  | {
+      type: "SET_RESULTS";
+      results: Record<string, string>;
+      submissions: Record<string, Record<string, string>>;
+    }
   | { type: "NEXT_ROUND" }
   | { type: "UPDATE_TIME"; time: number }
   | { type: "END_GAME" }
@@ -36,4 +39,3 @@ export type GameAction =
   | { type: "UPDATE_GAME_STATE"; state: Partial<GameState> }
   | { type: "MARK_PLAYER_READY"; playerId: string }
   | { type: "SET_ROUND_START_TIME"; time: string };
-
