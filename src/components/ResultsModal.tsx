@@ -24,6 +24,15 @@ interface FloatingEmoji {
   y: number;
 }
 
+interface ReactionCounts {
+  "💯": number;
+  "🤣": number;
+  "👎": number;
+  "🌶️": number;
+}
+
+type PageReactions = Record<number, ReactionCounts>;
+
 export const ResultsModal = ({
   isOpen,
   option,
@@ -37,6 +46,14 @@ export const ResultsModal = ({
 }: ResultsModalProps) => {
   const isLastPage = currentIndex === totalOptions - 1;
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
+  const [pageReactions, setPageReactions] = useState<PageReactions>({});
+
+  const currentReactions = pageReactions[currentIndex] || {
+    "💯": 0,
+    "🤣": 0,
+    "👎": 0,
+    "🌶️": 0,
+  };
 
   const handleEmojiClick = (emoji: string, event: React.MouseEvent) => {
     const x = event.clientX;
@@ -50,13 +67,17 @@ export const ResultsModal = ({
     };
 
     setFloatingEmojis((prev) => [...prev, newEmoji]);
+    setPageReactions((prev) => ({
+      ...prev,
+      [currentIndex]: {
+        ...currentReactions,
+        [emoji]: (currentReactions[emoji as keyof ReactionCounts] || 0) + 1,
+      },
+    }));
 
     // Remove the emoji after animation completes
     setTimeout(() => {
-      setFloatingEmojis((prev) => {
-        console.log("Removing emoji:", newEmoji.id);
-        return prev.filter((e) => e.id !== newEmoji.id);
-      });
+      setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
     }, 1000);
   };
 
@@ -110,6 +131,11 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("💯", e)}
             >
               💯
+              {currentReactions["💯"] > 0 && (
+                <span className="text-xs text-game-neutral ml-1">
+                  {currentReactions["💯"]}
+                </span>
+              )}
             </Button>
             <Button
               variant="ghost"
@@ -118,6 +144,11 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("🤣", e)}
             >
               🤣
+              {currentReactions["🤣"] > 0 && (
+                <span className="text-xs text-game-neutral ml-1">
+                  {currentReactions["🤣"]}
+                </span>
+              )}
             </Button>
             <Button
               variant="ghost"
@@ -126,6 +157,11 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("👎", e)}
             >
               👎
+              {currentReactions["👎"] > 0 && (
+                <span className="text-xs text-game-neutral ml-1">
+                  {currentReactions["👎"]}
+                </span>
+              )}
             </Button>
             <Button
               variant="ghost"
@@ -134,6 +170,11 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("🌶️", e)}
             >
               🌶️
+              {currentReactions["🌶️"] > 0 && (
+                <span className="text-xs text-game-neutral ml-1">
+                  {currentReactions["🌶️"]}
+                </span>
+              )}
             </Button>
           </div>
 
