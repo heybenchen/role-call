@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/game";
@@ -35,12 +34,11 @@ export const ResultsPhase = ({
   const [currentOptionIndex, setCurrentOptionIndex] = useState(0);
 
   const isPlayerReady = readyPlayers.includes(currentPlayerId);
-  const allPlayersReady = readyPlayers.length === players.length;
 
   const currentOption = options[currentOptionIndex];
   const matchedPlayerId = results[currentOption];
   const matchedPlayer = players.find((p) => p.id === matchedPlayerId);
-  
+
   const playerVotes = players.map((player) => {
     const playerSubmission = submissions[player.id];
     const votedForPlayerId = playerSubmission?.[currentOption];
@@ -57,6 +55,11 @@ export const ResultsPhase = ({
 
   const handleNextOption = () => {
     setCurrentOptionIndex((prev) => Math.min(options.length - 1, prev + 1));
+  };
+
+  const handleModalClose = () => {
+    setCurrentOptionIndex(0);
+    setIsResultsModalOpen(false);
   };
 
   return (
@@ -79,7 +82,6 @@ export const ResultsPhase = ({
 
         <ResultsModal
           isOpen={isResultsModalOpen}
-          onOpenChange={setIsResultsModalOpen}
           option={currentOption}
           matchedPlayer={matchedPlayer}
           playerVotes={playerVotes}
@@ -87,14 +89,15 @@ export const ResultsPhase = ({
           totalOptions={options.length}
           onPrevious={handlePreviousOption}
           onNext={handleNextOption}
+          onClose={handleModalClose}
         />
 
         <div className="space-y-4 animate-fade-in">
           <h3 className="text-xl font-bold text-game-primary text-center">Points History</h3>
           <div className="grid grid-cols-1 gap-4">
             {players.map((player) => (
-              <div 
-                key={player.id} 
+              <div
+                key={player.id}
                 className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm hover:scale-[1.02] transition-transform"
               >
                 <div className="flex justify-between items-center mb-2">

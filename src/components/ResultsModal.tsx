@@ -1,12 +1,10 @@
-
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Player } from "@/types/game";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface ResultsModalProps {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   option: string;
   matchedPlayer: Player | undefined;
   playerVotes: Array<{ voterName: string; votedForName: string }>;
@@ -14,11 +12,11 @@ interface ResultsModalProps {
   totalOptions: number;
   onPrevious: () => void;
   onNext: () => void;
+  onClose: () => void;
 }
 
 export const ResultsModal = ({
   isOpen,
-  onOpenChange,
   option,
   matchedPlayer,
   playerVotes,
@@ -26,9 +24,12 @@ export const ResultsModal = ({
   totalOptions,
   onPrevious,
   onNext,
+  onClose,
 }: ResultsModalProps) => {
+  const isLastPage = currentIndex === totalOptions - 1;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-xl animate-scale-in">
         <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
           Category Result {currentIndex + 1} of {totalOptions}
@@ -48,8 +49,8 @@ export const ResultsModal = ({
 
           <div className="space-y-1">
             {playerVotes.map((vote, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="flex items-center space-x-2 text-sm animate-fade-in"
                 style={{ animationDelay: `${index * 150}ms` }}
               >
@@ -73,15 +74,17 @@ export const ResultsModal = ({
           <span className="text-sm text-game-neutral">
             {currentIndex + 1} of {totalOptions}
           </span>
-          <Button
-            variant="outline"
-            onClick={onNext}
-            disabled={currentIndex === totalOptions - 1}
-            className="w-24"
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
+          {isLastPage ? (
+            <Button variant="outline" onClick={onClose} className="w-24">
+              Close
+              <X className="h-4 w-4 ml-1" />
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={onNext} className="w-24">
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

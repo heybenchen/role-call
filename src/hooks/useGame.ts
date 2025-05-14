@@ -515,7 +515,7 @@ export const useGame = () => {
         if (remainingTime === 0) {
           const currentPlayer = state.players.find((p) => p.id === state.players[0]?.id);
           if (currentPlayer?.isHost) {
-            dispatch({ type: "SET_RESULTS", results: {} });
+            dispatch({ type: "SET_RESULTS", results: state.results });
             updateLobbyState({ phase: "results" });
           }
         }
@@ -523,7 +523,7 @@ export const useGame = () => {
 
       return () => clearInterval(interval);
     }
-  }, [state.phase, state.round_start_time, state.players, updateLobbyState]);
+  }, [state.phase, state.round_start_time, state.players, updateLobbyState, state.results]);
 
   return {
     state,

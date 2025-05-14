@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useGame } from "@/hooks/useGame";
 import { LobbyCreation } from "@/components/LobbyCreation";
@@ -13,11 +12,18 @@ import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { state, actions } = useGame();
-  const [playerId] = useState(uuidv4());
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { lobbyCode } = useParams();
+
+  const [playerId] = useState(() => {
+    const savedPlayerId = localStorage.getItem("playerId");
+    if (savedPlayerId) return savedPlayerId;
+    const newId = uuidv4();
+    localStorage.setItem("playerId", newId);
+    return newId;
+  });
 
   useEffect(() => {
     if (lobbyCode) {
@@ -141,4 +147,3 @@ const Index = () => {
 };
 
 export default Index;
-
