@@ -32,12 +32,12 @@ export const ResultsModal = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl animate-scale-in">
         <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
-          Category {currentIndex + 1} of {totalOptions}
+          Role {currentIndex + 1} of {totalOptions}
         </DialogTitle>
 
         <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2 animate-fade-in">
           <div className="flex justify-between items-center">
-            <div className="text-lg font-bold text-game-neutral">{option}:</div>
+            <div className="text-lg font-bold text-game-neutral">{option} is...</div>
             {matchedPlayer ? (
               <div className="text-lg font-semibold text-game-primary animate-enter">
                 {matchedPlayer.name}
