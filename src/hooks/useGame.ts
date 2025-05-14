@@ -259,10 +259,6 @@ export const useGame = () => {
         if (lobbyError) throw lobbyError;
 
         dispatch({ type: "JOIN_GAME", player: completePlayer });
-        toast({
-          title: "Player joined!",
-          description: `${player.name} has joined the game`,
-        });
       } catch (error) {
         console.error("Error joining game:", error);
         toast({

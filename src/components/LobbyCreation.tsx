@@ -35,13 +35,13 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
         <div className="space-y-6">
           <div className="space-y-3">
             <label htmlFor="name" className="block text-lg font-bold text-game-neutral">
-              Your Name
+              Name
             </label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
+              placeholder="Please use your real name"
               className="h-12 text-lg border-2 border-game-neutral rounded-lg shadow-lego-sm focus:ring-2 focus:ring-game-primary"
             />
           </div>
