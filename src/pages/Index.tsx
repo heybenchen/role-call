@@ -29,7 +29,7 @@ const Index = () => {
     if (lobbyCode) {
       actions.fetchLobby(lobbyCode);
     }
-  }, [lobbyCode]);
+  }, [lobbyCode, actions]);
 
   const handleJoin = async (name: string) => {
     await actions.joinGame({

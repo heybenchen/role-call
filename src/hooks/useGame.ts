@@ -132,9 +132,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
     case "SET_RESULTS": {
       const allPlayersSubmitted = Object.keys(action.submissions).length === state.players.length;
-      const results = calculateResults(action.submissions);
 
       if (allPlayersSubmitted) {
+        const results = calculateResults(action.submissions);
         const updatedPlayers = updateScores(
           state.players,
           action.submissions,
@@ -148,7 +148,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           submissions: action.submissions,
           players: updatedPlayers,
           phase: "results",
-          ready_players: [],
           round_start_time: null,
         };
       }
@@ -158,7 +157,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         results: action.results,
         submissions: action.submissions,
         phase: "results",
-        ready_players: [],
         round_start_time: null,
       };
     }
