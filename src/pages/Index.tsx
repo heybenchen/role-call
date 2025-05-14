@@ -6,7 +6,7 @@ import { GameLobby } from "@/components/GameLobby";
 import { PromptPhase } from "@/components/PromptPhase";
 import { MatchingPhase } from "@/components/MatchingPhase";
 import { ResultsPhase } from "@/components/ResultsPhase";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";

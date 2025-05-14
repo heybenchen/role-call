@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useToast";
 import { Copy } from "lucide-react";
 
 interface LobbyCreationProps {

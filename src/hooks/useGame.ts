@@ -1,6 +1,6 @@
 import { useReducer, useCallback, useEffect } from "react";
 import { GameState, GameAction, Player } from "@/types/game";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
