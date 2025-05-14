@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Player } from "@/types/game";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface ResultsModalProps {
   isOpen: boolean;
@@ -76,8 +76,8 @@ export const ResultsModal = ({
           </span>
           {isLastPage ? (
             <Button variant="outline" onClick={() => onOpenChange(false)} className="w-24">
-              Close
-              <X className="h-4 w-4 ml-1" />
+              Done
+              <Check className="h-4 w-4 ml-1" />
             </Button>
           ) : (
             <Button variant="outline" onClick={onNext} className="w-24">
