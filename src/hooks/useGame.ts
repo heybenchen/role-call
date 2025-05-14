@@ -132,9 +132,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
     case "SET_RESULTS": {
       const allPlayersSubmitted = Object.keys(action.submissions).length === state.players.length;
+      const results = calculateResults(action.submissions);
 
       if (allPlayersSubmitted) {
-        const results = calculateResults(action.submissions);
         const updatedPlayers = updateScores(
           state.players,
           action.submissions,
@@ -331,7 +331,7 @@ export const useGame = () => {
         }
 
         if (
-          dataState.phase === "matching" &&
+          (dataState.phase === "matching" || dataState.phase === "results") &&
           dataState.submissions &&
           dataState.players &&
           Object.keys(dataState.submissions).length === dataState.players.length
