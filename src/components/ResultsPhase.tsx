@@ -57,11 +57,6 @@ export const ResultsPhase = ({
     setCurrentOptionIndex((prev) => Math.min(options.length - 1, prev + 1));
   };
 
-  const handleModalClose = () => {
-    setCurrentOptionIndex(0);
-    setIsResultsModalOpen(false);
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
       <Card className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
@@ -89,7 +84,7 @@ export const ResultsPhase = ({
           totalOptions={options.length}
           onPrevious={handlePreviousOption}
           onNext={handleNextOption}
-          onClose={handleModalClose}
+          onOpenChange={setIsResultsModalOpen}
         />
 
         <div className="space-y-4 animate-fade-in">

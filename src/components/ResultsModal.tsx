@@ -12,7 +12,7 @@ interface ResultsModalProps {
   totalOptions: number;
   onPrevious: () => void;
   onNext: () => void;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
 export const ResultsModal = ({
@@ -24,12 +24,12 @@ export const ResultsModal = ({
   totalOptions,
   onPrevious,
   onNext,
-  onClose,
+  onOpenChange,
 }: ResultsModalProps) => {
   const isLastPage = currentIndex === totalOptions - 1;
 
   return (
-    <Dialog open={isOpen}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl animate-scale-in">
         <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
           Category Result {currentIndex + 1} of {totalOptions}
@@ -75,7 +75,7 @@ export const ResultsModal = ({
             {currentIndex + 1} of {totalOptions}
           </span>
           {isLastPage ? (
-            <Button variant="outline" onClick={onClose} className="w-24">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="w-24">
               Close
               <X className="h-4 w-4 ml-1" />
             </Button>
