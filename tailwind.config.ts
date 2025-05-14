@@ -1,5 +1,5 @@
-
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -76,6 +76,10 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        "float-up": {
+          "0%": { transform: "translate(-50%, -50%) scale(1)", opacity: "1" },
+          "100%": { transform: "translate(-50%, -250%) scale(1.25)", opacity: "0" },
+        },
         shimmer: {
           "0%": { backgroundPosition: "-1000px 0" },
           "100%": { backgroundPosition: "1000px 0" },
@@ -85,6 +89,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         float: "float 3s ease-in-out infinite",
+        "float-up": "float-up 1s ease-out forwards",
         shimmer: "shimmer 2s infinite linear",
       },
       boxShadow: {
@@ -93,5 +98,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 } satisfies Config;

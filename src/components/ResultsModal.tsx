@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Player } from "@/types/game";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 
 interface ResultsModalProps {
   isOpen: boolean;
@@ -13,6 +15,13 @@ interface ResultsModalProps {
   onPrevious: () => void;
   onNext: () => void;
   onOpenChange: (open: boolean) => void;
+}
+
+interface FloatingEmoji {
+  id: number;
+  emoji: string;
+  x: number;
+  y: number;
 }
 
 export const ResultsModal = ({
@@ -27,66 +36,158 @@ export const ResultsModal = ({
   onOpenChange,
 }: ResultsModalProps) => {
   const isLastPage = currentIndex === totalOptions - 1;
+  const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
+
+  const handleEmojiClick = (emoji: string, event: React.MouseEvent) => {
+    const x = event.clientX;
+    const y = event.clientY;
+
+    const newEmoji: FloatingEmoji = {
+      id: Date.now(),
+      emoji,
+      x,
+      y,
+    };
+
+    setFloatingEmojis((prev) => [...prev, newEmoji]);
+
+    // Remove the emoji after animation completes
+    setTimeout(() => {
+      setFloatingEmojis((prev) => {
+        console.log("Removing emoji:", newEmoji.id);
+        return prev.filter((e) => e.id !== newEmoji.id);
+      });
+    }, 1000);
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl animate-scale-in">
-        <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
-          Role {currentIndex + 1} of {totalOptions}
-        </DialogTitle>
+    <>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="animate-scale-in p-4 w-[calc(100vw-2rem)] rounded-xl">
+          <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
+            Role {currentIndex + 1} of {totalOptions}
+          </DialogTitle>
 
-        <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2 animate-fade-in">
-          <div className="flex justify-between items-center">
-            <div className="text-lg font-bold text-game-neutral">{option} is...</div>
-            {matchedPlayer ? (
-              <div className="text-lg font-semibold text-game-primary animate-enter">
-                {matchedPlayer.name}
+          <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2 animate-fade-in">
+            <div className="flex justify-between items-center">
+              <div className="text-lg font-bold text-game-neutral">
+                {option} is...
               </div>
+              {matchedPlayer ? (
+                <div className="text-lg font-semibold text-game-primary animate-enter">
+                  {matchedPlayer.name}
+                </div>
+              ) : (
+                <div className="text-lg font-semibold text-game-primary">
+                  ??
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              {playerVotes.map((vote, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-2 text-sm animate-fade-in"
+                  style={{ animationDelay: `${index * 150}ms` }}
+                >
+                  <span className="font-semibold text-game-neutral">
+                    {vote.voterName}:
+                  </span>
+                  <span className="text-game-secondary">
+                    {vote.votedForName}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-2 mt-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xl hover:bg-[#F1F0FB]"
+              onClick={(e) => handleEmojiClick("💯", e)}
+            >
+              💯
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xl hover:bg-[#F1F0FB]"
+              onClick={(e) => handleEmojiClick("🤣", e)}
+            >
+              🤣
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xl hover:bg-[#F1F0FB]"
+              onClick={(e) => handleEmojiClick("👎", e)}
+            >
+              👎
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xl hover:bg-[#F1F0FB]"
+              onClick={(e) => handleEmojiClick("🌶️", e)}
+            >
+              🌶️
+            </Button>
+          </div>
+
+          <div className="flex justify-between items-center mt-4">
+            <Button
+              variant="outline"
+              onClick={onPrevious}
+              disabled={currentIndex === 0}
+              className="w-24"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Prev
+            </Button>
+            <span className="text-sm text-game-neutral">
+              {currentIndex + 1} of {totalOptions}
+            </span>
+            {isLastPage ? (
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="w-24"
+              >
+                Done
+                <Check className="h-4 w-4 ml-1" />
+              </Button>
             ) : (
-              <div className="text-lg font-semibold text-game-primary">??</div>
+              <Button variant="outline" onClick={onNext} className="w-24">
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
 
-          <div className="space-y-1">
-            {playerVotes.map((vote, index) => (
+      {typeof window !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 pointer-events-none z-[9999]">
+            {floatingEmojis.map(({ id, emoji, x, y }) => (
               <div
-                key={index}
-                className="flex items-center space-x-2 text-sm animate-fade-in"
-                style={{ animationDelay: `${index * 150}ms` }}
+                key={id}
+                className="fixed pointer-events-none text-4xl animate-float-up bg-white/50 p-2 rounded-full"
+                style={{
+                  left: `${x}px`,
+                  top: `${y}px`,
+                  transform: "translate(-50%, -50%)",
+                }}
               >
-                <span className="font-semibold text-game-neutral">{vote.voterName}:</span>
-                <span className="text-game-secondary">{vote.votedForName}</span>
+                {emoji}
               </div>
             ))}
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center mt-4">
-          <Button
-            variant="outline"
-            onClick={onPrevious}
-            disabled={currentIndex === 0}
-            className="w-24"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Prev
-          </Button>
-          <span className="text-sm text-game-neutral">
-            {currentIndex + 1} of {totalOptions}
-          </span>
-          {isLastPage ? (
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="w-24">
-              Done
-              <Check className="h-4 w-4 ml-1" />
-            </Button>
-          ) : (
-            <Button variant="outline" onClick={onNext} className="w-24">
-              Next
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+          </div>,
+          document.body
+        )}
+    </>
   );
 };
