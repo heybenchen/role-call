@@ -426,7 +426,7 @@ export const useGame = () => {
         [playerId]: matches,
       };
 
-      if (Object.keys(state.submissions).length === state.players.length) {
+      if (Object.keys(state.submissions).length === state.players.length - 1) {
         await updateLobbyState({ phase: "results", submissions: updatedSubmissions });
       } else {
         await updateLobbyState({ submissions: updatedSubmissions });
