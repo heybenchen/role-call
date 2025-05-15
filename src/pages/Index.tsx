@@ -25,10 +25,12 @@ const Index = () => {
     return newId;
   });
 
+  // Fetch the lobby every 2 seconds as a fallback for miscellaneous issues
   useEffect(() => {
-    if (lobbyCode) {
+    const interval = setInterval(() => {
       actions.fetchLobby(lobbyCode);
-    }
+    }, 2000);
+    return () => clearInterval(interval);
   }, [lobbyCode]);
 
   const handleJoin = async (name: string) => {
