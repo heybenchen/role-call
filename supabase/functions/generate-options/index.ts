@@ -34,11 +34,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a game assistant that generates options for a party game. When given a category, return exactly ${playerCount} unique items within that category. Provide only the items, separated by commas, with no additional text or formatting. `,
+            content: `You are a game assistant that generates options for a party game. When given a category, return exactly ${playerCount} unique items within that category. Provide only the items, separated by semicolons, with no additional text or formatting. `,
           },
           {
             role: "user",
-            content: `Category: ${prompt}. Remember, provide exactly ${playerCount} items, comma-separated.`,
+            content: `Category: ${prompt}. Remember, provide exactly ${playerCount} items, semicolon-separated.`,
           },
         ],
       }),
@@ -60,7 +60,7 @@ serve(async (req) => {
     }
 
     const options = data.choices[0].message.content
-      .split(",")
+      .split(";")
       .map((item: string) => item.trim());
 
     console.log("Generated options:", options);
