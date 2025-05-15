@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, playerCount } = await req.json();
+    const { prompt, playerCount, creativity } = await req.json();
 
     if (!openAIApiKey) {
       throw new Error("OpenAI API key is not configured");
@@ -34,12 +34,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-
             content: `You are a game assistant that generates options for a party game. When given a category, return exactly ${playerCount} unique items within that category. Provide only the items, separated by commas, with no additional text or formatting. `,
           },
           {
             role: "user",
-            content: `Category: ${prompt}. Remember, provide exactly ${playerCount} items, comma-separated.`,
+            content: `Category: ${prompt}. Remember, provide exactly ${playerCount} items, comma-separated. Provide responses that are ${creativity}.`,
           },
         ],
       }),

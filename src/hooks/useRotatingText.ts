@@ -17,7 +17,7 @@ const PLACEHOLDER_TEXTS = [
 ];
 
 const TIMING = {
-  PAUSE_AFTER_TYPING: 2000,
+  PAUSE_AFTER_TYPING: 3000,
   PAUSE_BEFORE_NEXT: 500,
 } as const;
 
@@ -43,7 +43,7 @@ interface RotatingTextResult {
  */
 export const useRotatingText = (
   typingSpeed = 40,
-  deletingSpeed = 20
+  deletingSpeed = 25
 ): RotatingTextResult => {
   const [texts] = useState<string[]>(() => shuffleArray(PLACEHOLDER_TEXTS));
   const [currentIndex, setCurrentIndex] = useState<number>(0);
