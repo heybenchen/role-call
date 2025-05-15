@@ -1,8 +1,8 @@
-
 import { Player } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Users } from 'lucide-react';
+import { Copy, Users } from 'lucide-react';
+import { useState } from 'react';
 
 interface GameLobbyProps {
   players: Player[];
@@ -11,6 +11,18 @@ interface GameLobbyProps {
 }
 
 export const GameLobby = ({ players, onStart, isHost }: GameLobbyProps) => {
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
       <Card className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
@@ -19,6 +31,15 @@ export const GameLobby = ({ players, onStart, isHost }: GameLobbyProps) => {
           <p className="text-xl font-semibold text-game-primary">
             {players.length} {players.length === 1 ? 'player' : 'players'} in lobby
           </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopyUrl}
+            className="text-game-neutral hover:text-game-primary hover:bg-[#F1F0FB]"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            {copySuccess ? "Copied!" : "Copy Invite Link"}
+          </Button>
         </div>
 
         <div className="space-y-6">
