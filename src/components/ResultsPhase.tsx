@@ -16,6 +16,8 @@ interface ResultsPhaseProps {
   currentPlayerId: string;
   onPlayerReady: (playerId: string) => void;
   readyPlayers: string[];
+  reactions: Record<string, Record<string, number>>;
+  onReactionClick: (option: string, emoji: string) => void;
 }
 
 export const ResultsPhase = ({
@@ -23,12 +25,12 @@ export const ResultsPhase = ({
   options,
   results,
   players,
-  onNextRound,
-  isHost,
   submissions,
   currentPlayerId,
   onPlayerReady,
   readyPlayers,
+  reactions,
+  onReactionClick,
 }: ResultsPhaseProps) => {
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(true);
   const [currentOptionIndex, setCurrentOptionIndex] = useState(0);
@@ -62,6 +64,10 @@ export const ResultsPhase = ({
     setCurrentOptionIndex(0);
   };
 
+  const handleReactionClick = (emoji: string) => {
+    onReactionClick(currentOption, emoji);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
       <Card className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
@@ -87,9 +93,11 @@ export const ResultsPhase = ({
           playerVotes={playerVotes}
           currentIndex={currentOptionIndex}
           totalOptions={options.length}
+          optionReactions={reactions[currentOption] ?? {}}
           onPrevious={handlePreviousOption}
           onNext={handleNextOption}
           onOpenChange={handleOpenChange}
+          onReactionClick={handleReactionClick}
         />
 
         <div className="space-y-4 animate-fade-in">

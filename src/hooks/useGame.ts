@@ -22,6 +22,7 @@ const initialState: GameState = {
   options: [],
   ready_players: [],
   round_start_time: null,
+  reactions: {},
 };
 
 const calculateResults = (
@@ -36,7 +37,8 @@ const calculateResults = (
       if (!optionCounts[option]) {
         optionCounts[option] = {};
       }
-      optionCounts[option][playerId] = (optionCounts[option][playerId] || 0) + 1;
+      optionCounts[option][playerId] =
+        (optionCounts[option][playerId] || 0) + 1;
     });
   });
 
@@ -47,7 +49,8 @@ const calculateResults = (
 
     if (sortedCounts.length > 0) {
       const highestCount = sortedCounts[0][1];
-      const hasTie = sortedCounts.length > 1 && sortedCounts[1][1] === highestCount;
+      const hasTie =
+        sortedCounts.length > 1 && sortedCounts[1][1] === highestCount;
 
       if (hasTie) {
         results[option] = null;
@@ -75,9 +78,12 @@ const updateScores = (
 
     if (!submission) return player;
 
-    const roundPoints = Object.entries(submission).reduce((score, [option, playerId]) => {
-      return results[option] === playerId ? score + 1 : score;
-    }, 0);
+    const roundPoints = Object.entries(submission).reduce(
+      (score, [option, playerId]) => {
+        return results[option] === playerId ? score + 1 : score;
+      },
+      0
+    );
 
     const newPointsHistory = [...(player.pointsHistory || [])];
     newPointsHistory[currentRound] = roundPoints;
@@ -100,7 +106,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         players: [
           ...state.players,
-          { ...action.player, pointsHistory: action.player.pointsHistory || [] },
+          {
+            ...action.player,
+            pointsHistory: action.player.pointsHistory || [],
+          },
         ],
         totalRounds: state.players.length * 2,
       };
@@ -131,7 +140,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         },
       };
     case "SET_RESULTS": {
-      const allPlayersSubmitted = Object.keys(action.submissions).length === state.players.length;
+      const allPlayersSubmitted =
+        Object.keys(action.submissions).length === state.players.length;
 
       if (allPlayersSubmitted) {
         const results = calculateResults(action.submissions);
@@ -178,7 +188,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         currentRound: state.currentRound + 1,
-        phase: state.currentRound + 1 >= state.totalRounds ? "gameOver" : "prompt",
+        phase:
+          state.currentRound + 1 >= state.totalRounds ? "gameOver" : "prompt",
         promptPlayerId: state.players[nextPlayerIndex]?.id,
         submissions: {},
         results: {},
@@ -210,6 +221,18 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         ...action.state,
+      };
+    case "UPDATE_REACTIONS":
+      return {
+        ...state,
+        reactions: {
+          ...state.reactions,
+          [action.option]: {
+            ...state.reactions[action.option],
+            [action.emoji]:
+              (state.reactions[action.option]?.[action.emoji] ?? 0) + 1,
+          },
+        },
       };
     default:
       return state;
@@ -292,65 +315,68 @@ export const useGame = () => {
     }
   }, []);
 
-  const fetchLobby = useCallback(async (lobbyCode: string) => {
-    try {
-      console.log("fetching lobby", lobbyCode);
+  const fetchLobby = useCallback(
+    async (lobbyCode: string) => {
+      try {
+        console.log("fetching lobby", lobbyCode);
 
-      const { data, error } = await supabase
-        .from("lobbies")
-        .select("*")
-        .eq("code", lobbyCode.toUpperCase())
-        .maybeSingle();
+        const { data, error } = await supabase
+          .from("lobbies")
+          .select("*")
+          .eq("code", lobbyCode.toUpperCase())
+          .maybeSingle();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (!data) {
+        if (!data) {
+          toast({
+            title: "Lobby not found",
+            description: "The lobby code you entered does not exist",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        dispatch({ type: "SET_LOBBY_CODE", lobbyCode: data.code });
+        Object.entries(data.state).forEach(([key, value]) => {
+          if (key === "players") {
+            value.forEach((player: Player) => {
+              dispatch({ type: "JOIN_GAME", player });
+            });
+          }
+        });
+
+        if (data.state && typeof data.state === "object") {
+          const dataState = data.state as GameState;
+          if (state.phase !== dataState.phase) {
+            dispatch({ type: "UPDATE_GAME_STATE", state: dataState });
+          }
+
+          if (
+            (dataState.phase === "matching" || dataState.phase === "results") &&
+            dataState.submissions &&
+            dataState.players &&
+            Object.keys(dataState.submissions).length === dataState.players.length
+          ) {
+            dispatch({
+              type: "SET_RESULTS",
+              results: dataState.results,
+              submissions: dataState.submissions,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching lobby:", error);
+
         toast({
-          title: "Lobby not found",
-          description: "The lobby code you entered does not exist",
+          title: "Error fetching lobby",
+          description: "Please try again later",
           variant: "destructive",
         });
-        return;
       }
-
-      dispatch({ type: "SET_LOBBY_CODE", lobbyCode: data.code });
-      Object.entries(data.state).forEach(([key, value]) => {
-        if (key === "players") {
-          value.forEach((player: Player) => {
-            dispatch({ type: "JOIN_GAME", player });
-          });
-        }
-      });
-
-      if (data.state && typeof data.state === "object") {
-        const dataState = data.state as GameState;
-        if (state.phase !== dataState.phase) {
-          dispatch({ type: "UPDATE_GAME_STATE", state: dataState });
-        }
-
-        if (
-          (dataState.phase === "matching" || dataState.phase === "results") &&
-          dataState.submissions &&
-          dataState.players &&
-          Object.keys(dataState.submissions).length === dataState.players.length
-        ) {
-          dispatch({
-            type: "SET_RESULTS",
-            results: dataState.results,
-            submissions: dataState.submissions,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching lobby:", error);
-
-      toast({
-        title: "Error fetching lobby",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    }
-  }, [state.phase]);
+    },
+    [state.phase]
+  );
 
   const updateLobbyState = useCallback(
     async (newState: Partial<GameState>) => {
@@ -421,14 +447,38 @@ export const useGame = () => {
       };
 
       if (Object.keys(state.submissions).length === state.players.length - 1) {
-        await updateLobbyState({ phase: "results", submissions: updatedSubmissions });
+        await updateLobbyState({
+          phase: "results",
+          submissions: updatedSubmissions,
+        });
       } else {
         await updateLobbyState({ submissions: updatedSubmissions });
       }
 
       await fetchLobby(state.lobbyCode);
     },
-    [fetchLobby, state.lobbyCode, state.players.length, state.submissions, updateLobbyState]
+    [
+      fetchLobby,
+      state.lobbyCode,
+      state.players.length,
+      state.submissions,
+      updateLobbyState,
+    ]
+  );
+
+  const updateReactions = useCallback(
+    async (option: string, emoji: string) => {
+      dispatch({ type: "UPDATE_REACTIONS", option, emoji });
+      const updatedReactions = {
+        ...state.reactions,
+        [option]: {
+          ...state.reactions[option],
+          [emoji]: (state.reactions[option]?.[emoji] ?? 0) + 1,
+        },
+      };
+      await updateLobbyState({ reactions: updatedReactions });
+    },
+    [state.reactions, updateLobbyState]
   );
 
   const nextRound = useCallback(async () => {
@@ -438,7 +488,8 @@ export const useGame = () => {
       submissions: {},
       results: {},
       currentRound: state.currentRound + 1,
-      promptPlayerId: state.players[(state.currentRound + 1) % state.players.length].id,
+      promptPlayerId:
+        state.players[(state.currentRound + 1) % state.players.length].id,
       currentPrompt: "",
       options: [],
       round_start_time: null,
@@ -520,7 +571,9 @@ export const useGame = () => {
         dispatch({ type: "UPDATE_TIME", time: remainingTime });
 
         if (remainingTime === 0) {
-          const currentPlayer = state.players.find((p) => p.id === state.players[0]?.id);
+          const currentPlayer = state.players.find(
+            (p) => p.id === state.players[0]?.id
+          );
           if (currentPlayer?.isHost) {
             dispatch({
               type: "SET_RESULTS",
@@ -558,6 +611,7 @@ export const useGame = () => {
       endGame,
       setLobbyCode,
       markPlayerReady,
+      updateReactions,
     },
   };
 };

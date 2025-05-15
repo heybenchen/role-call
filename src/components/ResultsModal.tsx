@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Player } from "@/types/game";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createPortal } from "react-dom";
+import { useGame } from "@/hooks/useGame";
 
 interface ResultsModalProps {
   isOpen: boolean;
@@ -12,9 +13,11 @@ interface ResultsModalProps {
   playerVotes: Array<{ voterName: string; votedForName: string }>;
   currentIndex: number;
   totalOptions: number;
+  optionReactions: Record<string, number>;
   onPrevious: () => void;
   onNext: () => void;
   onOpenChange: (open: boolean) => void;
+  onReactionClick: (emoji: string) => void;
 }
 
 interface FloatingEmoji {
@@ -24,15 +27,6 @@ interface FloatingEmoji {
   y: number;
 }
 
-interface ReactionCounts {
-  "💯": number;
-  "🤣": number;
-  "👎": number;
-  "🌶️": number;
-}
-
-type PageReactions = Record<number, ReactionCounts>;
-
 export const ResultsModal = ({
   isOpen,
   option,
@@ -40,22 +34,17 @@ export const ResultsModal = ({
   playerVotes,
   currentIndex,
   totalOptions,
+  optionReactions,
   onPrevious,
   onNext,
   onOpenChange,
+  onReactionClick,
 }: ResultsModalProps) => {
-  const isLastPage = currentIndex === totalOptions - 1;
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
-  const [pageReactions, setPageReactions] = useState<PageReactions>({});
 
-  const currentReactions = pageReactions[currentIndex] || {
-    "💯": 0,
-    "🤣": 0,
-    "👎": 0,
-    "🌶️": 0,
-  };
+  const isLastPage = currentIndex === totalOptions - 1;
 
-  const handleEmojiClick = (emoji: string, event: React.MouseEvent) => {
+  const handleEmojiClick = useCallback((emoji: string, event: React.MouseEvent) => {
     const x = event.clientX;
     const y = event.clientY;
 
@@ -67,19 +56,15 @@ export const ResultsModal = ({
     };
 
     setFloatingEmojis((prev) => [...prev, newEmoji]);
-    setPageReactions((prev) => ({
-      ...prev,
-      [currentIndex]: {
-        ...currentReactions,
-        [emoji]: (currentReactions[emoji as keyof ReactionCounts] || 0) + 1,
-      },
-    }));
+    onReactionClick(emoji);
 
     // Remove the emoji after animation completes
     setTimeout(() => {
-      setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
-    }, 1000);
-  };
+        setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
+      }, 1000);
+    },
+    [onReactionClick]
+  );
 
   return (
     <>
@@ -131,9 +116,9 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("💯", e)}
             >
               💯
-              {currentReactions["💯"] > 0 && (
+              {optionReactions["💯"] > 0 && (
                 <span className="text-xs text-game-neutral ml-1">
-                  {currentReactions["💯"]}
+                  {optionReactions["💯"]}
                 </span>
               )}
             </Button>
@@ -144,9 +129,9 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("🤣", e)}
             >
               🤣
-              {currentReactions["🤣"] > 0 && (
+              {optionReactions["🤣"] > 0 && (
                 <span className="text-xs text-game-neutral ml-1">
-                  {currentReactions["🤣"]}
+                  {optionReactions["🤣"]}
                 </span>
               )}
             </Button>
@@ -157,9 +142,9 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("👎", e)}
             >
               👎
-              {currentReactions["👎"] > 0 && (
+              {optionReactions["👎"] > 0 && (
                 <span className="text-xs text-game-neutral ml-1">
-                  {currentReactions["👎"]}
+                  {optionReactions["👎"]}
                 </span>
               )}
             </Button>
@@ -170,9 +155,9 @@ export const ResultsModal = ({
               onClick={(e) => handleEmojiClick("🌶️", e)}
             >
               🌶️
-              {currentReactions["🌶️"] > 0 && (
+              {optionReactions["🌶️"] > 0 && (
                 <span className="text-xs text-game-neutral ml-1">
-                  {currentReactions["🌶️"]}
+                  {optionReactions["🌶️"]}
                 </span>
               )}
             </Button>

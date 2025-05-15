@@ -72,6 +72,10 @@ const Index = () => {
     actions.markPlayerReady(playerId);
   };
 
+  const handleReactionClick = (option: string, emoji: string) => {
+    actions.updateReactions(option, emoji);
+  };
+
   const currentPlayer = state.players.find((p) => p.id === playerId);
   const isHost = currentPlayer?.isHost ?? false;
   const isJoiningGame = location.pathname.includes("/join/");
@@ -140,6 +144,8 @@ const Index = () => {
           currentPlayerId={playerId}
           onPlayerReady={handlePlayerReady}
           readyPlayers={state.ready_players}
+          reactions={state.reactions}
+          onReactionClick={handleReactionClick}
         />
       )}
     </div>
