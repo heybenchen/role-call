@@ -25,14 +25,10 @@ const Index = () => {
     return newId;
   });
 
-  // Fetch the lobby every 2 seconds as a fallback for miscellaneous issues
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (lobbyCode) {  
-        actions.fetchLobby(lobbyCode);
-      }
-    }, 2000);
-    return () => clearInterval(interval);
+    if (lobbyCode) {
+      actions.fetchLobby(lobbyCode);
+    }
   }, [lobbyCode]);
 
   const handleJoin = async (name: string) => {
@@ -91,12 +87,17 @@ const Index = () => {
       {state.phase === "lobby" &&
         !state.players.find((p) => p.id === playerId) &&
         (isJoiningGame ? (
-          <LobbyCreation onJoin={handleJoin} lobbyCode={lobbyCode || state.lobbyCode} />
+          <LobbyCreation
+            onJoin={handleJoin}
+            lobbyCode={lobbyCode || state.lobbyCode}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#FEF7CD]">
             <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral transform transition-transform hover:-translate-y-1">
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-game-primary">Role Models</h1>
+                <h1 className="text-4xl font-bold text-game-primary">
+                  Role Models
+                </h1>
                 <p className="text-xl font-semibold text-game-neutral">
                   Typecast your friends. Match the crowd.
                 </p>
@@ -111,9 +112,14 @@ const Index = () => {
           </div>
         ))}
 
-      {state.phase === "lobby" && state.players.find((p) => p.id === playerId) && (
-        <GameLobby players={state.players} onStart={handleStart} isHost={isHost} />
-      )}
+      {state.phase === "lobby" &&
+        state.players.find((p) => p.id === playerId) && (
+          <GameLobby
+            players={state.players}
+            onStart={handleStart}
+            isHost={isHost}
+          />
+        )}
 
       {state.phase === "prompt" && promptPlayer && (
         <PromptPhase
@@ -124,34 +130,40 @@ const Index = () => {
         />
       )}
 
-      {state.phase === "matching" && promptPlayer && state.currentPrompt && state.options && (
-        <MatchingPhase
-          currentPrompt={state.currentPrompt}
-          options={state.options}
-          players={state.players}
-          currentPlayer={currentPlayer!}
-          onSubmit={handleMatchSubmit}
-          submissions={state.submissions}
-          startTime={state.round_start_time}
-        />
-      )}
+      {state.phase === "matching" &&
+        promptPlayer &&
+        state.currentPrompt &&
+        state.options && (
+          <MatchingPhase
+            currentPrompt={state.currentPrompt}
+            options={state.options}
+            players={state.players}
+            currentPlayer={currentPlayer!}
+            onSubmit={handleMatchSubmit}
+            submissions={state.submissions}
+            startTime={state.round_start_time}
+          />
+        )}
 
-      {state.phase === "results" && state.currentPrompt && state.options && state.results && (
-        <ResultsPhase
-          prompt={state.currentPrompt}
-          options={state.options}
-          results={state.results}
-          players={state.players}
-          onNextRound={actions.nextRound}
-          isHost={isHost}
-          submissions={state.submissions}
-          currentPlayerId={playerId}
-          onPlayerReady={handlePlayerReady}
-          readyPlayers={state.ready_players}
-          reactions={state.reactions}
-          onReactionClick={handleReactionClick}
-        />
-      )}
+      {state.phase === "results" &&
+        state.currentPrompt &&
+        state.options &&
+        state.results && (
+          <ResultsPhase
+            prompt={state.currentPrompt}
+            options={state.options}
+            results={state.results}
+            players={state.players}
+            onNextRound={actions.nextRound}
+            isHost={isHost}
+            submissions={state.submissions}
+            currentPlayerId={playerId}
+            onPlayerReady={handlePlayerReady}
+            readyPlayers={state.ready_players}
+            reactions={state.reactions}
+            onReactionClick={handleReactionClick}
+          />
+        )}
     </div>
   );
 };
