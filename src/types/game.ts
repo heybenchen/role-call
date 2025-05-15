@@ -23,6 +23,7 @@ export type GameState = {
 };
 
 export type GameAction =
+  | { type: "RESET_GAME" }
   | { type: "JOIN_GAME"; player: Player }
   | { type: "START_GAME" }
   | { type: "SET_PROMPT"; prompt: string }

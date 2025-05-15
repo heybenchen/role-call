@@ -76,7 +76,36 @@ const Index = () => {
     actions.updateReactions(option, emoji);
   };
 
+  const handleResetGame = () => {
+    actions.resetGame();
+    navigate("/");
+  };
+
   const currentPlayer = state.players.find((p) => p.id === playerId);
+
+  if (state.phase !== "lobby" && !currentPlayer) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-[#FEF7CD]">
+        <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lego border-4 border-game-neutral">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold text-game-primary">
+              You're too late to the party 😪
+            </h2>
+            <p className="text-m font-semibold text-game-neutral">
+              Invite your friends to a new lobby to play with them.
+            </p>
+            <Button
+              className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1"
+              onClick={handleResetGame}
+            >
+              Return Home
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const isHost = currentPlayer?.isHost ?? false;
   const isJoiningGame = location.pathname.includes("/join/");
   const promptPlayer = state.players.find((p) => p.id === state.promptPlayerId);

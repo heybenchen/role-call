@@ -98,6 +98,8 @@ const updateScores = (
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
+    case "RESET_GAME":
+      return initialState;
     case "JOIN_GAME":
       if (state.players.find((p) => p.id === action.player.id)) {
         return state;
@@ -241,6 +243,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 
 export const useGame = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+
+  const resetGame = useCallback(() => {
+    dispatch({ type: "RESET_GAME" });
+  }, [dispatch]);
 
   const joinGame = useCallback(
     async (player: Player) => {
@@ -599,6 +605,7 @@ export const useGame = () => {
   return {
     state,
     actions: {
+      resetGame,
       joinGame,
       createLobby,
       fetchLobby,
