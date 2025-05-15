@@ -28,7 +28,9 @@ const Index = () => {
   // Fetch the lobby every 2 seconds as a fallback for miscellaneous issues
   useEffect(() => {
     const interval = setInterval(() => {
-      actions.fetchLobby(lobbyCode);
+      if (lobbyCode) {  
+        actions.fetchLobby(lobbyCode);
+      }
     }, 2000);
     return () => clearInterval(interval);
   }, [lobbyCode]);
