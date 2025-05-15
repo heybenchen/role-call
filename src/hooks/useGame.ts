@@ -299,7 +299,7 @@ export const useGame = () => {
       const { data, error } = await supabase
         .from("lobbies")
         .select("*")
-        .eq("code", lobbyCode)
+        .eq("code", lobbyCode.toUpperCase())
         .maybeSingle();
 
       if (error) throw error;
@@ -350,7 +350,7 @@ export const useGame = () => {
         variant: "destructive",
       });
     }
-  }, []);
+  }, [state.phase]);
 
   const updateLobbyState = useCallback(
     async (newState: Partial<GameState>) => {
@@ -425,8 +425,10 @@ export const useGame = () => {
       } else {
         await updateLobbyState({ submissions: updatedSubmissions });
       }
+
+      await fetchLobby(state.lobbyCode);
     },
-    [state.players.length, state.submissions, updateLobbyState]
+    [fetchLobby, state.lobbyCode, state.players.length, state.submissions, updateLobbyState]
   );
 
   const nextRound = useCallback(async () => {
@@ -440,6 +442,7 @@ export const useGame = () => {
       currentPrompt: "",
       options: [],
       round_start_time: null,
+      ready_players: [],
     });
   }, [state.currentRound, state.players, updateLobbyState]);
 
