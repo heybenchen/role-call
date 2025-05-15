@@ -456,6 +456,7 @@ export const useGame = () => {
         await updateLobbyState({
           phase: "results",
           submissions: updatedSubmissions,
+          results: calculateResults(updatedSubmissions),
         });
       } else {
         await updateLobbyState({ submissions: updatedSubmissions });
