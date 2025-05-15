@@ -143,6 +143,9 @@ export const MatchingPhase = ({
           <h2 className="text-xl font-bold text-game-primary">
             Match players to: "{currentPrompt.toLocaleLowerCase()}"
           </h2>
+          <p className="text-sm text-game-neutral mb-4">
+            Drag and drop player names to match them.
+          </p>
           <p className="text-l font-bold text-game-neutral">{formatTime(secondsRemaining)}</p>
           {hasSubmitted && (
             <p className="text-xl font-semibold text-game-neutral">

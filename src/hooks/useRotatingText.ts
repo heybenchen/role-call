@@ -8,12 +8,12 @@ const PLACEHOLDER_TEXTS = [
   "retro video games",
   "types of pasta",
   "classic rock bands",
-  "Disney characters",
+  "disney characters",
   "types of clouds",
   "historical figures",
   "ice cream flavors",
   "conspiracy theories",
-  "articles of clothing",
+  "reasons to skip work",
 ];
 
 const TIMING = {

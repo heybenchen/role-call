@@ -5,6 +5,7 @@ import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGame } from "@/hooks/useGame";
+import { EmojiReactionButtons } from "./EmojiReactionButtons";
 
 interface ResultsModalProps {
   isOpen: boolean;
@@ -98,7 +99,7 @@ export const ResultsModal = ({
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="animate-scale-in p-4 w-[calc(100vw-2rem)] rounded-xl">
           <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
-            Roles
+            Results
           </DialogTitle>
 
           <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2 animate-fade-in">
@@ -135,64 +136,10 @@ export const ResultsModal = ({
             </div>
           </div>
 
-          <div className="flex justify-center gap-2 mt-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xl hover:bg-[#F1F0FB]"
-              onClick={(e) => handleEmojiClick("💯", e)}
-              data-emoji="💯"
-            >
-              💯
-              {optionReactions["💯"] > 0 && (
-                <span className="text-xs text-game-neutral ml-1">
-                  {optionReactions["💯"]}
-                </span>
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xl hover:bg-[#F1F0FB]"
-              onClick={(e) => handleEmojiClick("😆", e)}
-              data-emoji="😆"
-            >
-              😆
-              {optionReactions["😆"] > 0 && (
-                <span className="text-xs text-game-neutral ml-1">
-                  {optionReactions["😆"]}
-                </span>
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xl hover:bg-[#F1F0FB]"
-              onClick={(e) => handleEmojiClick("💩", e)}
-              data-emoji="💩"
-            >
-              💩
-              {optionReactions["💩"] > 0 && (
-                <span className="text-xs text-game-neutral ml-1">
-                  {optionReactions["💩"]}
-                </span>
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xl hover:bg-[#F1F0FB]"
-              onClick={(e) => handleEmojiClick("🌶️", e)}
-              data-emoji="🌶️"
-            >
-              🌶️
-              {optionReactions["🌶️"] > 0 && (
-                <span className="text-xs text-game-neutral ml-1">
-                  {optionReactions["🌶️"]}
-                </span>
-              )}
-            </Button>
-          </div>
+          <EmojiReactionButtons
+            optionReactions={optionReactions}
+            onEmojiClick={handleEmojiClick}
+          />
 
           <div className="flex justify-between items-center mt-4">
             <Button
