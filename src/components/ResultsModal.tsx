@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Player } from "@/types/game";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGame } from "@/hooks/useGame";
 
@@ -41,10 +41,12 @@ export const ResultsModal = ({
   onReactionClick,
 }: ResultsModalProps) => {
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
+  const prevOptionRef = useRef(option);
+  const prevReactionsRef = useRef(optionReactions);
 
   const isLastPage = currentIndex === totalOptions - 1;
 
-  const handleEmojiClick = useCallback((emoji: string, event: React.MouseEvent) => {
+  const animateEmoji = (emoji: string, event: React.MouseEvent) => {
     const x = event.clientX;
     const y = event.clientY;
 
@@ -56,22 +58,47 @@ export const ResultsModal = ({
     };
 
     setFloatingEmojis((prev) => [...prev, newEmoji]);
-    onReactionClick(emoji);
 
     // Remove the emoji after animation completes
     setTimeout(() => {
-        setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
-      }, 1000);
-    },
-    [onReactionClick]
-  );
+      setFloatingEmojis((prev) => prev.filter((e) => e.id !== newEmoji.id));
+    }, 1000);
+  };
+
+  const handleEmojiClick = (emoji: string, event: React.MouseEvent) => {
+    onReactionClick(emoji);
+  };
+
+  useEffect(() => {
+    // Check each emoji for changes in count
+    Object.entries(optionReactions).forEach(([emoji, count]) => {
+      const prevCount = prevReactionsRef.current[emoji] ?? 0;
+      const prevOption = prevOptionRef.current;
+      if (count > prevCount && option === prevOption) {
+        // Create a synthetic event at the center of the button
+        const button = document.querySelector(`[data-emoji="${emoji}"]`);
+        if (button) {
+          const rect = button.getBoundingClientRect();
+          const event = {
+            clientX: rect.left + rect.width / 2,
+            clientY: rect.top + rect.height / 2,
+          } as React.MouseEvent;
+          animateEmoji(emoji, event);
+        }
+      }
+    });
+
+    // Update the ref with current reactions
+    prevReactionsRef.current = optionReactions;
+    prevOptionRef.current = option;
+  }, [optionReactions, option]);
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="animate-scale-in p-4 w-[calc(100vw-2rem)] rounded-xl">
           <DialogTitle className="text-2xl font-bold text-game-primary text-center mb-4 animate-fade-in">
-            Role {currentIndex + 1} of {totalOptions}
+            Roles
           </DialogTitle>
 
           <div className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm space-y-2 animate-fade-in">
@@ -114,6 +141,7 @@ export const ResultsModal = ({
               size="sm"
               className="text-xl hover:bg-[#F1F0FB]"
               onClick={(e) => handleEmojiClick("💯", e)}
+              data-emoji="💯"
             >
               💯
               {optionReactions["💯"] > 0 && (
@@ -126,12 +154,13 @@ export const ResultsModal = ({
               variant="ghost"
               size="sm"
               className="text-xl hover:bg-[#F1F0FB]"
-              onClick={(e) => handleEmojiClick("🤣", e)}
+              onClick={(e) => handleEmojiClick("😆", e)}
+              data-emoji="😆"
             >
-              🤣
-              {optionReactions["🤣"] > 0 && (
+              😆
+              {optionReactions["😆"] > 0 && (
                 <span className="text-xs text-game-neutral ml-1">
-                  {optionReactions["🤣"]}
+                  {optionReactions["😆"]}
                 </span>
               )}
             </Button>
@@ -139,12 +168,13 @@ export const ResultsModal = ({
               variant="ghost"
               size="sm"
               className="text-xl hover:bg-[#F1F0FB]"
-              onClick={(e) => handleEmojiClick("👎", e)}
+              onClick={(e) => handleEmojiClick("💩", e)}
+              data-emoji="💩"
             >
-              👎
-              {optionReactions["👎"] > 0 && (
+              💩
+              {optionReactions["💩"] > 0 && (
                 <span className="text-xs text-game-neutral ml-1">
-                  {optionReactions["👎"]}
+                  {optionReactions["💩"]}
                 </span>
               )}
             </Button>
@@ -153,6 +183,7 @@ export const ResultsModal = ({
               size="sm"
               className="text-xl hover:bg-[#F1F0FB]"
               onClick={(e) => handleEmojiClick("🌶️", e)}
+              data-emoji="🌶️"
             >
               🌶️
               {optionReactions["🌶️"] > 0 && (
@@ -201,7 +232,7 @@ export const ResultsModal = ({
             {floatingEmojis.map(({ id, emoji, x, y }) => (
               <div
                 key={id}
-                className="fixed pointer-events-none text-4xl animate-float-up bg-white/50 p-2 rounded-full"
+                className="fixed pointer-events-none text-4xl animate-float-up"
                 style={{
                   left: `${x}px`,
                   top: `${y}px`,
