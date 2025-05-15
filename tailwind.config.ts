@@ -84,6 +84,10 @@ export default {
           "0%": { backgroundPosition: "-1000px 0" },
           "100%": { backgroundPosition: "1000px 0" },
         },
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -91,6 +95,7 @@ export default {
         float: "float 3s ease-in-out infinite",
         "float-up": "float-up 1s ease-out forwards",
         shimmer: "shimmer 2s infinite linear",
+        blink: 'blink 1s step-end infinite',
       },
       boxShadow: {
         'lego': '0 8px 0 0 rgba(0, 0, 0, 0.2)',

@@ -38,7 +38,7 @@ export const GameLobby = ({ players, onStart, isHost }: GameLobbyProps) => {
             className="text-game-neutral hover:text-game-primary hover:bg-[#F1F0FB]"
           >
             <Copy className="h-4 w-4 mr-2" />
-            {copySuccess ? "Copied!" : "Copy Invite Link"}
+            {copySuccess ? "Copied!" : "Copy Link"}
           </Button>
         </div>
 

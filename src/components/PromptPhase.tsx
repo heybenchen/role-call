@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/useToast';
 import { supabase } from '@/integrations/supabase/client';
 import { Player } from '@/types/game';
+import { useRotatingText } from '@/hooks/useRotatingText';
 
 interface PromptPhaseProps {
   currentPlayer: Player;
@@ -19,7 +19,8 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
   const [isLoading, setIsLoading] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast } = useToast();
-
+  const { text: rotatingText, isTyping } = useRotatingText();
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isPlayerTurn || hasSubmitted) return;
@@ -61,7 +62,7 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
               </p>
             ) : (
               <p className="text-xl font-semibold text-game-neutral">
-                Enter a category (e.g., "natural elements" or "Scooby Doo characters")
+                Enter a category and AI will generate options for people to match.
               </p>
             )
           ) : (
@@ -73,14 +74,22 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
 
         {isPlayerTurn && !hasSubmitted && (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              placeholder="Enter your category..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              disabled={isLoading}
-              className="h-12 text-lg border-2 border-game-neutral rounded-lg shadow-lego-sm focus:ring-2 focus:ring-game-primary"
-            />
+            <div className="relative">
+              <Input
+                type="text"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                disabled={isLoading}
+                className="h-12 text-lg border-2 border-game-neutral rounded-lg shadow-lego-sm focus:ring-2 focus:ring-game-primary"
+              />
+              {!prompt && (
+                <div 
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${isTyping ? 'after:content-["|"] after:animate-blink' : ''}`}
+                >
+                  {rotatingText}
+                </div>
+              )}
+            </div>
             <Button
               type="submit"
               className="w-full h-12 text-lg font-bold bg-game-primary hover:bg-game-primary/90 text-white shadow-lego transform transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0"

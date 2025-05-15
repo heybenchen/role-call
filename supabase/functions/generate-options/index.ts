@@ -5,7 +5,8 @@ const openAIApiKey = Deno.env.get("OPENAI_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
@@ -34,7 +35,7 @@ serve(async (req) => {
           {
             role: "system",
 
-            content: `You are a game assistant. When given a category, return exactly ${playerCount} unique items within that category. Provide only the items, separated by commas, with no additional text or formatting.`,
+            content: `You are a game assistant that generates options for a party game. When given a category, return exactly ${playerCount} unique items within that category. Provide only the items, separated by commas, with no additional text or formatting. `,
           },
           {
             role: "user",
@@ -47,7 +48,9 @@ serve(async (req) => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("OpenAI API error:", errorData);
-      throw new Error(`OpenAI API error: ${errorData.error?.message || "Unknown error"}`);
+      throw new Error(
+        `OpenAI API error: ${errorData.error?.message || "Unknown error"}`
+      );
     }
 
     const data = await response.json();
@@ -57,12 +60,16 @@ serve(async (req) => {
       throw new Error("Invalid response format from OpenAI");
     }
 
-    const options = data.choices[0].message.content.split(",").map((item: string) => item.trim());
+    const options = data.choices[0].message.content
+      .split(",")
+      .map((item: string) => item.trim());
 
     console.log("Generated options:", options);
 
     if (options.length !== playerCount) {
-      console.error(`Expected ${playerCount} options but got ${options.length}`);
+      console.error(
+        `Expected ${playerCount} options but got ${options.length}`
+      );
       throw new Error(
         `Invalid number of options generated. Expected ${playerCount}, got ${options.length}`
       );
