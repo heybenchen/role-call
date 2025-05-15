@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, playerCount, creativity } = await req.json();
+    const { prompt, playerCount } = await req.json();
 
     if (!openAIApiKey) {
       throw new Error("OpenAI API key is not configured");
@@ -30,7 +30,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-o4-mini",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -38,7 +38,7 @@ serve(async (req) => {
           },
           {
             role: "user",
-            content: `Category: ${prompt}. Remember, provide exactly ${playerCount} items, comma-separated. Provide responses that are ${creativity}.`,
+            content: `Category: ${prompt}. Remember, provide exactly ${playerCount} items, comma-separated.`,
           },
         ],
       }),

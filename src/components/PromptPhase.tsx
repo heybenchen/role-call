@@ -9,17 +9,13 @@ import { useRotatingText } from '@/hooks/useRotatingText';
 
 interface PromptPhaseProps {
   currentPlayer: Player;
-  onPromptSubmit: (prompt: string, options: string[], creativity: Mode) => void;
+  onPromptSubmit: (prompt: string, options: string[]) => void;
   playerCount: number;
   isPlayerTurn: boolean;
 }
 
-type Mode = 'normal' | 'creative' | 'crazy';
-
-
 export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlayerTurn }: PromptPhaseProps) => {
   const [prompt, setPrompt] = useState('');
-  const [mode, setMode] = useState<Mode>('normal');
   const [isLoading, setIsLoading] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast } = useToast();
@@ -33,12 +29,12 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-options', {
-        body: { prompt, playerCount, creativity: mode },
+        body: { prompt, playerCount },
       });
 
       if (error) throw error;
 
-      onPromptSubmit(prompt, data.options, mode);
+      onPromptSubmit(prompt, data.options);
       setHasSubmitted(true);
     } catch (error) {
       console.error('Error generating options:', error);
@@ -93,30 +89,6 @@ export const PromptPhase = ({ currentPlayer, onPromptSubmit, playerCount, isPlay
                   {rotatingText}
                 </div>
               )}
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-base font-medium text-gray-600 mb-2 block">
-                AI Response Style
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['normal', 'creative', 'crazy'] as const).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setMode(option)}
-                    className={`py-2 px-1 rounded-lg border-2 transition-all duration-200 text-center text-sm whitespace-nowrap ${
-                      mode === option
-                        ? 'border-game-primary bg-game-primary/10 text-game-primary font-medium'
-                        : 'border-gray-200 hover:border-game-primary/50'
-                    }`}
-                  >
-                    {option === 'normal' && '🙂 Normal'}
-                    {option === 'creative' && '🙃 Creative'}
-                    {option === 'crazy' && '🤪 Crazy'}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <Button
