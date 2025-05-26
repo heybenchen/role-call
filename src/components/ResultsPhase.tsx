@@ -18,9 +18,6 @@ interface ResultsPhaseProps {
   readyPlayers: string[];
   reactions: Record<string, Record<string, number>>;
   onReactionClick: (option: string, emoji: string) => void;
-  onUpdateResultsIndex: (index: number) => void;
-  currentResultsIndex?: number;
-  promptPlayerId?: string;
 }
 
 export const ResultsPhase = ({
@@ -34,18 +31,13 @@ export const ResultsPhase = ({
   readyPlayers,
   reactions,
   onReactionClick,
-  onUpdateResultsIndex,
-  currentResultsIndex = 0,
-  promptPlayerId,
 }: ResultsPhaseProps) => {
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(true);
-  const [lastClickTime, setLastClickTime] = useState(0);
-  const DEBOUNCE_DELAY = 200;
+  const [currentOptionIndex, setCurrentOptionIndex] = useState(0);
 
   const isPlayerReady = readyPlayers.includes(currentPlayerId);
-  const canControlResults = currentPlayerId === promptPlayerId;
 
-  const currentOption = options[currentResultsIndex];
+  const currentOption = options[currentOptionIndex];
   const matchedPlayerId = results[currentOption];
   const matchedPlayer = players.find((p) => p.id === matchedPlayerId);
 
@@ -60,23 +52,16 @@ export const ResultsPhase = ({
   });
 
   const handlePreviousOption = () => {
-    if (!canControlResults) return;
-    const now = Date.now();
-    if (now - lastClickTime < DEBOUNCE_DELAY) return;
-    setLastClickTime(now);
-    onUpdateResultsIndex(Math.max(0, currentResultsIndex - 1));
+    setCurrentOptionIndex((prev) => Math.max(0, prev - 1));
   };
 
   const handleNextOption = () => {
-    if (!canControlResults) return;
-    const now = Date.now();
-    if (now - lastClickTime < DEBOUNCE_DELAY) return;
-    setLastClickTime(now);
-    onUpdateResultsIndex(Math.min(options.length - 1, currentResultsIndex + 1));
+    setCurrentOptionIndex((prev) => Math.min(options.length - 1, prev + 1));
   };
 
   const handleOpenChange = (isOpen: boolean) => {
     setIsResultsModalOpen(isOpen);
+    setCurrentOptionIndex(0);
   };
 
   const handleReactionClick = (emoji: string) => {
@@ -106,14 +91,13 @@ export const ResultsPhase = ({
           option={currentOption}
           matchedPlayer={matchedPlayer}
           playerVotes={playerVotes}
-          currentIndex={currentResultsIndex}
+          currentIndex={currentOptionIndex}
           totalOptions={options.length}
           optionReactions={reactions[currentOption] ?? {}}
           onPrevious={handlePreviousOption}
           onNext={handleNextOption}
           onOpenChange={handleOpenChange}
           onReactionClick={handleReactionClick}
-          canControlResults={canControlResults}
         />
 
         <div className="space-y-2 animate-fade-in">

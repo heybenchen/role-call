@@ -193,11 +193,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           },
         },
       };
-    case "UPDATE_RESULTS_INDEX":
-      return {
-        ...state,
-        currentResultsIndex: action.index,
-      };
     default:
       return state;
   }
@@ -483,14 +478,6 @@ export const useGame = () => {
     [state.reactions, updateLobbyState]
   );
 
-  const updateResultsIndex = useCallback(
-    async (index: number) => {
-      dispatch({ type: "UPDATE_RESULTS_INDEX", index });
-      await updateLobbyState({ currentResultsIndex: index });
-    },
-    [updateLobbyState]
-  );
-
   const nextRound = useCallback(async () => {
     dispatch({ type: "NEXT_ROUND" });
     await updateLobbyState({
@@ -623,7 +610,6 @@ export const useGame = () => {
       setLobbyCode,
       markPlayerReady,
       updateReactions,
-      updateResultsIndex,
     },
   };
 };

@@ -20,7 +20,6 @@ export type GameState = {
   ready_players: string[];
   round_start_time: string | null;
   reactions: Record<string,  Record<string, number>>;
-  currentResultsIndex?: number;
 };
 
 export type GameAction =
@@ -42,5 +41,4 @@ export type GameAction =
   | { type: "UPDATE_GAME_STATE"; state: Partial<GameState> }
   | { type: "MARK_PLAYER_READY"; playerId: string }
   | { type: "SET_ROUND_START_TIME"; time: string }
-  | { type: "UPDATE_REACTIONS"; option: string; emoji: string }
-  | { type: "UPDATE_RESULTS_INDEX"; index: number };
+  | { type: "UPDATE_REACTIONS"; option: string; emoji: string};
