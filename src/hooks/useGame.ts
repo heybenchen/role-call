@@ -25,48 +25,6 @@ const initialState: GameState = {
   reactions: {},
 };
 
-const calculateResults = (
-  submissions: Record<string, Record<string, string>>
-): Record<string, string | null> => {
-  const results: Record<string, string | null> = {};
-  const optionCounts: Record<string, Record<string, number>> = {};
-  const assignedPlayers = new Set<string>();
-
-  Object.values(submissions).forEach((playerSubmission) => {
-    Object.entries(playerSubmission).forEach(([option, playerId]) => {
-      if (!optionCounts[option]) {
-        optionCounts[option] = {};
-      }
-      optionCounts[option][playerId] =
-        (optionCounts[option][playerId] || 0) + 1;
-    });
-  });
-
-  Object.entries(optionCounts).forEach(([option, counts]) => {
-    const sortedCounts = Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .filter(([playerId]) => !assignedPlayers.has(playerId));
-
-    if (sortedCounts.length > 0) {
-      const highestCount = sortedCounts[0][1];
-      const hasTie =
-        sortedCounts.length > 1 && sortedCounts[1][1] === highestCount;
-
-      if (hasTie) {
-        results[option] = null;
-      } else {
-        const selectedPlayer = sortedCounts[0][0];
-        results[option] = selectedPlayer;
-        assignedPlayers.add(selectedPlayer);
-      }
-    }
-  });
-
-  console.log("results", results);
-
-  return results;
-};
-
 const updateScores = (
   players: Player[],
   submissions: Record<string, Record<string, string>>,
@@ -146,17 +104,16 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         Object.keys(action.submissions).length === state.players.length;
 
       if (allPlayersSubmitted) {
-        const results = calculateResults(action.submissions);
         const updatedPlayers = updateScores(
           state.players,
           action.submissions,
-          results,
+          action.results,
           state.currentRound
         );
 
         return {
           ...state,
-          results,
+          results: action.results,
           submissions: action.submissions,
           players: updatedPlayers,
           phase: "results",
@@ -446,31 +403,43 @@ export const useGame = () => {
 
   const submitMatches = useCallback(
     async (playerId: string, matches: Record<string, string>) => {
-      dispatch({ type: "SUBMIT_MATCHES", playerId, matches });
-      const updatedSubmissions = {
-        ...state.submissions,
-        [playerId]: matches,
-      };
-
-      if (Object.keys(state.submissions).length === state.players.length - 1) {
-        await updateLobbyState({
-          phase: "results",
-          submissions: updatedSubmissions,
-          results: calculateResults(updatedSubmissions),
+      try {
+        const { data, error } = await supabase.functions.invoke('submit-results', {
+          body: {
+            lobbyCode: state.lobbyCode,
+            playerId,
+            matches,
+          },
         });
-      } else {
-        await updateLobbyState({ submissions: updatedSubmissions });
-      }
 
-      await fetchLobby(state.lobbyCode);
+        if (error) {
+          throw new Error("Failed to submit matches");
+        }
+        
+        // Update local state with the response
+        dispatch({
+          type: "SUBMIT_MATCHES",
+          playerId,
+          matches,
+        });
+
+        if (data.phase === "results") {
+          dispatch({
+            type: "SET_RESULTS",
+            results: data.results,
+            submissions: data.submissions,
+          });
+        }
+      } catch (error) {
+        console.error("Error submitting matches:", error);
+        toast({
+          title: "Error submitting matches",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      }
     },
-    [
-      fetchLobby,
-      state.lobbyCode,
-      state.players.length,
-      state.submissions,
-      updateLobbyState,
-    ]
+    [state.lobbyCode]
   );
 
   const updateReactions = useCallback(
