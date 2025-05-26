@@ -100,36 +100,45 @@ export const ResultsPhase = ({
           onReactionClick={handleReactionClick}
         />
 
-        <div className="space-y-4 animate-fade-in">
-          <h3 className="text-xl font-bold text-game-primary text-center">Points History</h3>
-          <div className="grid grid-cols-1 gap-4">
-            {players.map((player) => (
-              <div
-                key={player.id}
-                className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm hover:scale-[1.02] transition-transform"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-md font-bold text-game-neutral">{player.name}</span>
-                    {readyPlayers.includes(player.id) && (
-                      <CheckCircle2 className="h-6 w-6 text-game-success animate-scale-in" />
-                    )}
-                  </div>
-                  <span className="text-md font-bold text-game-primary">Total: {player.score}</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {player.pointsHistory.map((points, index) => (
-                    <div
-                      key={index}
-                      className="px-2.5 py-1 bg-white rounded-full font-semibold text-sm text-game-neutral border-2 animate-fade-in"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      {points}
+        <div className="space-y-2 animate-fade-in">
+          <h3 className="text-lg font-bold text-game-primary text-center">Leaderboard</h3>
+          <div className="grid grid-cols-1 gap-2">
+            {(() => {
+              const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+              const highestScore = sortedPlayers[0]?.score;
+              return sortedPlayers.map((player) => (
+                <div
+                  key={player.id}
+                  className="p-4 bg-[#F1F0FB] rounded-xl shadow-lego-sm hover:scale-[1.02] transition-transform"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-md font-bold text-game-neutral">
+                        {player.name}
+                        {player.score === highestScore && (
+                          <span className="ml-1 animate-bounce">👑</span>
+                        )}
+                      </span>
+                      {readyPlayers.includes(player.id) && (
+                        <CheckCircle2 className="h-6 w-6 text-game-success animate-scale-in" />
+                      )}
                     </div>
-                  ))}
+                    <span className="text-md font-bold text-game-primary">Total: {player.score}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {player.pointsHistory.map((points, index) => (
+                      <div
+                        key={index}
+                        className="px-2.5 py-1 bg-white rounded-full font-semibold text-sm text-game-neutral border-2 animate-fade-in"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        {points}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
         </div>
 

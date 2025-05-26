@@ -428,7 +428,7 @@ export const useGame = () => {
             type: "SET_RESULTS",
             results: data.results,
             submissions: data.submissions,
-          });
+        });
         }
       } catch (error) {
         console.error("Error submitting matches:", error);
