@@ -191,6 +191,9 @@ const Index = () => {
             readyPlayers={state.ready_players}
             reactions={state.reactions}
             onReactionClick={handleReactionClick}
+            onUpdateResultsIndex={actions.updateResultsIndex}
+            currentResultsIndex={state.currentResultsIndex}
+            promptPlayerId={state.promptPlayerId}
           />
         )}
     </div>

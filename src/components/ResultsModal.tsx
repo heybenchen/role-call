@@ -19,6 +19,7 @@ interface ResultsModalProps {
   onNext: () => void;
   onOpenChange: (open: boolean) => void;
   onReactionClick: (emoji: string) => void;
+  canControlResults: boolean;
 }
 
 interface FloatingEmoji {
@@ -40,6 +41,7 @@ export const ResultsModal = ({
   onNext,
   onOpenChange,
   onReactionClick,
+  canControlResults,
 }: ResultsModalProps) => {
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
   const prevOptionRef = useRef(option);
@@ -145,7 +147,7 @@ export const ResultsModal = ({
             <Button
               variant="outline"
               onClick={onPrevious}
-              disabled={currentIndex === 0}
+              disabled={currentIndex === 0 || !canControlResults}
               className="w-24"
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
@@ -164,7 +166,12 @@ export const ResultsModal = ({
                 <Check className="h-4 w-4 ml-1" />
               </Button>
             ) : (
-              <Button variant="outline" onClick={onNext} className="w-24">
+              <Button 
+                variant="outline" 
+                onClick={onNext} 
+                className="w-24"
+                disabled={!canControlResults}
+              >
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
