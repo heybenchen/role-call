@@ -23,7 +23,7 @@ export const MatchingPhase = ({
   submissions,
   startTime,
 }: MatchingPhaseProps) => {
-  const maxTime = players.length * 20;
+  const maxTime = players.length * 25;
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(maxTime);
