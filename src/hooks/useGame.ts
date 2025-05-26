@@ -208,6 +208,27 @@ export const useGame = () => {
   const joinGame = useCallback(
     async (player: Player) => {
       try {
+        // Fetch current lobby state to check for duplicate names
+        const { data: lobbyData, error: fetchError } = await supabase
+          .from("lobbies")
+          .select("state")
+          .eq("code", state.lobbyCode)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // Check if a player with the same name already exists in the lobby
+        const lobbyState = lobbyData.state as GameState;
+        const existingPlayers = lobbyState.players || [];
+        if (existingPlayers.some(p => p.name.toLowerCase() === player.name.toLowerCase())) {
+          toast({
+            title: "Name already taken",
+            description: "Please choose a different name",
+            variant: "destructive",
+          });
+          return;
+        }
+
         const { data: playerData, error: playerError } = await supabase
           .from("players")
           .upsert({

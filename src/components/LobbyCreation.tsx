@@ -41,7 +41,7 @@ export const LobbyCreation = ({ onJoin, lobbyCode }: LobbyCreationProps) => {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Please use your real name"
+              placeholder="What should we call you?"
               className="h-12 text-lg border-2 border-game-neutral rounded-lg shadow-lego-sm focus:ring-2 focus:ring-game-primary"
             />
           </div>
